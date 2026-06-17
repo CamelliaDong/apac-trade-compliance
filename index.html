@@ -1043,6 +1043,88 @@ body {
 .nickname-bar input:focus { border-color: var(--accent-blue); }
 .nickname-bar.editing .nickname-display { display: none; }
 .nickname-bar.editing input { display: inline-block; }
+.nickname-bar .bar-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--border-color);
+  margin: 0 2px;
+}
+.nickname-bar .sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.sync-dot.off { background: #ccc; }
+.sync-dot.on { background: #38a169; }
+.sync-dot.error { background: #e53e3e; }
+.nickname-bar .sync-label { color: var(--text-muted); font-size: 10px; }
+.nickname-bar .settings-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 2px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+.nickname-bar .settings-btn:hover { color: var(--accent-blue); }
+
+/* Settings Panel */
+.settings-panel {
+  position: fixed;
+  bottom: 50px;
+  right: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  font-size: 12px;
+  z-index: 200;
+  width: 300px;
+  display: none;
+}
+.settings-panel.open { display: block; }
+.settings-panel h4 { margin: 0 0 10px; font-size: 13px; }
+.settings-panel label { display: block; margin-bottom: 6px; color: var(--text-secondary); font-size: 11px; }
+.settings-panel input[type="password"],
+.settings-panel input[type="text"] {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 12px;
+  outline: none;
+  margin-bottom: 8px;
+}
+.settings-panel input:focus { border-color: var(--accent-blue); }
+.settings-panel .btn-row { display: flex; gap: 6px; margin-top: 6px; }
+.settings-panel button {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  cursor: pointer;
+  font-size: 11px;
+}
+.settings-panel button.primary {
+  background: var(--accent-blue);
+  color: #fff;
+  border-color: var(--accent-blue);
+}
+.settings-panel button:hover { opacity: 0.85; }
+.settings-panel .help-text {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.settings-panel .help-text a { color: var(--accent-blue); }
+#syncStatus {
+  transition: opacity 0.3s;
+  opacity: 0.6;
+}
 
 /* Setup banner */
 .setup-banner {
@@ -1207,9 +1289,9 @@ body {
       <h2>📅 Regulation Timeline</h2>
       <span class="reg-count-badge" id="regCount">0</span>
     </div>
-    <!-- Setup Banner (hidden when CloudBase is configured) -->
+    <!-- Setup Banner (shown when PAT not configured) -->
     <div class="setup-banner" id="setupBanner" style="display:none;">
-      💡 <strong>Team Collaboration Mode</strong>: To share tags &amp; notes with colleagues, configure Tencent CloudBase in the code. See <code>TCB_CONFIG</code> in the script section. Without CloudBase, tags/notes are stored locally in your browser.
+      💡 <strong>Team Collaboration</strong>: Tags &amp; notes are saved locally. To share with colleagues, click the ⚙️ icon below and enter your GitHub PAT (<em>public_repo</em> scope). <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--accent-blue)">Generate a token →</a>
     </div>
     <div class="timeline" id="timeline"></div>
 
@@ -1266,11 +1348,38 @@ body {
   <span id="fetchToastText">Fetching latest regulations...</span>
 </div>
 
-<!-- Nickname Bar -->
+<!-- Nickname Bar + Sync Settings -->
 <div class="nickname-bar" id="nicknameBar">
   <span class="nickname-label">👤</span>
   <span class="nickname-display" id="nicknameDisplay" onclick="startEditNickname()">Anonymous</span>
   <input type="text" id="nicknameInput" placeholder="Your name" onkeydown="if(event.key==='Enter')finishEditNickname()" onblur="finishEditNickname()">
+  <span class="bar-divider"></span>
+  <span class="sync-dot off" id="syncDot"></span>
+  <span class="sync-label" id="syncLabel">Local</span>
+  <span id="syncStatus"></span>
+  <button class="settings-btn" onclick="toggleSettingsPanel()" title="Sync Settings">⚙️</button>
+</div>
+
+<!-- Settings Panel -->
+<div class="settings-panel" id="settingsPanel">
+  <h4>⚙️ GitHub Sync Settings</h4>
+  <label>GitHub Personal Access Token (PAT)</label>
+  <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+  <div class="btn-row">
+    <button class="primary" onclick="savePATFromPanel()">Save</button>
+    <button onclick="clearPATFromPanel()">Clear</button>
+    <button onclick="testPATFromPanel()">Test</button>
+  </div>
+  <div class="help-text">
+    <strong>How to get a PAT:</strong><br>
+    1. Go to <a href="https://github.com/settings/tokens/new" target="_blank">GitHub → Settings → Developer settings → Personal access tokens</a><br>
+    2. Click "Generate new token (classic)"<br>
+    3. Select scope: <code>public_repo</code><br>
+    4. Generate &amp; copy the token, paste above<br>
+    <br>
+    <em>Reading shared annotations works without a PAT.<br>
+    Writing (adding tags/notes) requires a PAT.</em>
+  </div>
 </div>
 
 <script>
@@ -2126,114 +2235,219 @@ const BUILTIN_REGULATIONS = [
   }
 ];
 
-// ==================== TENCENT CLOUDBASE CONFIG ====================
-const TCB_CONFIG = {
-  // ⬇️ 填入你的腾讯云开发环境 ID ⬇️
-  // 设置步骤（5分钟）：
-  // 1. 访问 https://tcb.cloud.tencent.com → 注册/登录（微信扫码即可）
-  // 2. 点击「新建环境」→ 选择「免费体验版」（3000资源点/月，够用）→ 填写环境名称
-  // 3. 进入环境 → 数据库 → 点击「+」添加集合，名称填：RegAnnotation
-  // 4. 点击 RegAnnotation 集合 → 添加字段：regId(String), tags(Array), notes(Array)
-  // 5. 进入「设置」→「环境ID」→ 复制环境ID，填入下方 env
-  // 6. 进入「设置」→「安全配置」→ 添加安全域名：camelliadong.github.io
-  // 7. 进入「用户管理」→「登录设置」→ 开启「匿名登录」
-  env: ''
-  // 示例:
-  // env: 'apac-trade-9g8h7k'
+// ==================== GITHUB API CONFIG ====================
+const GITHUB_CONFIG = {
+  // ⬇️ Fill in your repo info ⬇️
+  owner: 'CamelliaDong',           // GitHub username or org
+  repo: 'apac-trade-compliance',   // Repository name
+  branch: 'gh-pages',              // Branch where the site is deployed
+  dataPath: 'data/annotations.json', // Path to shared annotations file
+  // How to enable sharing:
+  // 1. Each user needs a GitHub Personal Access Token (PAT) with "public_repo" scope
+  //    Go to: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
+  //    Or: GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+  //    Select scope: "public_repo" (for classic) or "Read and write to repository" (for fine-grained)
+  // 2. Click the ⚙️ icon in the bottom-right corner → paste your PAT → Save
+  // 3. Tags & notes will now sync to GitHub for everyone to see!
+  // Reading shared annotations does NOT require a PAT (public repo).
 };
 
-let tcbReady = false;
-let tcbDb = null;
-let tcbWatcher = null;
 let sharedAnnotations = {}; // {regId: {tags: [...], notes: [...]}}
+let annotationsSha = null;  // SHA of current annotations.json on GitHub
+let syncEnabled = false;    // true when PAT is configured
+let syncPollTimer = null;
 
-function initCloudBase() {
-  if (!TCB_CONFIG.env) {
-    console.log('[Tracker] CloudBase not configured, using localStorage for tags/notes');
-    const banner = document.getElementById('setupBanner');
-    if (banner) banner.style.display = 'block';
-    return;
-  }
-  try {
-    const app = cloudbase.init({ env: TCB_CONFIG.env, region: 'ap-shanghai' });
-    const auth = app.auth({ persistence: 'local' });
-    auth.signInAnonymously().then(() => {
-      tcbDb = app.database();
-      tcbReady = true;
-      console.log('[Tracker] CloudBase initialized ✓');
-      loadAllAnnotations();
-      // Real-time watch for changes
-      watchAnnotations();
-    }).catch(err => {
-      console.error('[Tracker] CloudBase auth failed:', err);
-      // Still try to use without auth (may fail on DB ops)
-      tcbDb = app.database();
-      tcbReady = true;
-      loadAllAnnotations();
-    });
-  } catch(e) {
-    console.error('[Tracker] CloudBase init failed:', e);
-    const banner = document.getElementById('setupBanner');
-    if (banner) banner.style.display = 'block';
-  }
+// ==================== GITHUB API FUNCTIONS ====================
+
+function getPAT() {
+  return localStorage.getItem('github_pat') || '';
+}
+function setPAT(token) {
+  localStorage.setItem('github_pat', token.trim());
+  syncEnabled = !!token.trim();
+  updateSyncBar();
+  if (syncEnabled) fetchSharedAnnotations(); // Try fetching with auth
+}
+function clearPAT() {
+  localStorage.removeItem('github_pat');
+  syncEnabled = false;
+  updateSyncBar();
 }
 
-async function loadAllAnnotations() {
-  if (!tcbReady || !tcbDb) return;
-  try {
-    const result = await tcbDb.collection('RegAnnotation').limit(1000).get();
-    const newData = {};
-    (result.data || []).forEach(doc => {
-      newData[doc.regId] = {
-        tags: doc.tags || [],
-        notes: doc.notes || [],
-        _docId: doc._id
-      };
-    });
-    sharedAnnotations = newData;
-    renderTimeline();
-  } catch(err) {
-    console.error('[Tracker] Load annotations failed:', err);
-  }
+function getAnnotationsRawUrl() {
+  return `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.dataPath}`;
+}
+function getAnnotationsApiUrl() {
+  return `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataPath}?ref=${GITHUB_CONFIG.branch}`;
 }
 
-function watchAnnotations() {
-  if (!tcbReady || !tcbDb) return;
+async function fetchSharedAnnotations() {
   try {
-    tcbWatcher = tcbDb.collection('RegAnnotation').watch({
-      onChange: function(snapshot) {
-        // Re-load all data when changes detected
-        loadAllAnnotations();
-      },
-      onError: function(err) {
-        console.error('[Tracker] Watch error:', err);
-        // Retry watch after 10s
-        setTimeout(watchAnnotations, 10000);
+    const pat = getPAT();
+    const headers = { 'Accept': 'application/vnd.github.v3+json' };
+    if (pat) headers['Authorization'] = `token ${pat}`;
+
+    const resp = await fetch(getAnnotationsApiUrl(), { headers });
+    if (resp.ok) {
+      const data = await resp.json();
+      // Save SHA for future writes
+      annotationsSha = data.sha || null;
+      // Decode content (base64)
+      const rawContent = decodeURIComponent(escape(atob(data.content || '')));
+      const parsed = JSON.parse(rawContent);
+      if (parsed && typeof parsed === 'object' && !parsed.message) {
+        const remoteData = parsed.annotations || parsed || {};
+        // Merge remote with local: keep both sets, dedupe by text+author
+        mergeAnnotations(remoteData);
+        console.log('[Tracker] Shared annotations loaded ✓', Object.keys(sharedAnnotations).length, 'entries');
+        renderTimeline();
+        return;
       }
-    });
-  } catch(e) {
-    console.error('[Tracker] Watch setup failed:', e);
+    }
+    // If file doesn't exist yet, that's fine
+    if (resp.status === 404) {
+      console.log('[Tracker] annotations.json not found on GitHub — will be created on first write');
+      sharedAnnotations = {};
+    } else {
+      console.warn('[Tracker] Fetch annotations failed:', resp.status, resp.statusText);
+    }
+  } catch(err) {
+    console.warn('[Tracker] Fetch annotations error:', err.message);
   }
 }
 
-async function getOrCreateAnnotation(id) {
-  if (!tcbReady || !tcbDb) return null;
+function mergeAnnotations(remoteData) {
+  // Merge remote data into sharedAnnotations, keeping local-only entries too
+  const merged = {};
+  // Start with all remote entries
+  for (const id in remoteData) {
+    merged[id] = { tags: [...(remoteData[id].tags || [])], notes: [...(remoteData[id].notes || [])] };
+  }
+  // Merge in local-only annotations from localStorage
+  for (const id in sharedAnnotations) {
+    if (!merged[id]) {
+      merged[id] = { tags: [...(sharedAnnotations[id].tags || [])], notes: [...(sharedAnnotations[id].notes || [])] };
+    } else {
+      // Merge tags (dedupe by text)
+      const existingTagTexts = new Set(merged[id].tags.map(t => t.text));
+      for (const t of (sharedAnnotations[id].tags || [])) {
+        if (!existingTagTexts.has(t.text)) {
+          merged[id].tags.push(t);
+          existingTagTexts.add(t.text);
+        }
+      }
+      // Merge notes (dedupe by text+author+timestamp)
+      const existingNoteKeys = new Set(merged[id].notes.map(n => `${n.text}|${n.author}|${n.createdAt}`));
+      for (const n of (sharedAnnotations[id].notes || [])) {
+        const key = `${n.text}|${n.author}|${n.createdAt}`;
+        if (!existingNoteKeys.has(key)) {
+          merged[id].notes.push(n);
+          existingNoteKeys.add(key);
+        }
+      }
+    }
+  }
+  sharedAnnotations = merged;
+}
+
+async function pushAnnotations() {
+  if (!syncEnabled) {
+    console.log('[Tracker] No PAT configured, skipping push');
+    return false;
+  }
+  const pat = getPAT();
+  if (!pat) return false;
+
   try {
-    // Try to find existing
-    const result = await tcbDb.collection('RegAnnotation').where({ regId: id }).limit(1).get();
-    if (result.data && result.data.length > 0) return result.data[0];
-    // Create new
-    const addResult = await tcbDb.collection('RegAnnotation').add({
-      regId: id,
-      tags: [],
-      notes: []
+    const content = JSON.stringify({ annotations: sharedAnnotations, lastUpdated: new Date().toISOString() }, null, 2);
+    const body = {
+      message: `Update annotations — ${new Date().toISOString().slice(0,16)}`,
+      content: btoa(unescape(encodeURIComponent(content))),
+      branch: GITHUB_CONFIG.branch
+    };
+    if (annotationsSha) body.sha = annotationsSha;
+
+    const resp = await fetch(getAnnotationsApiUrl(), {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${pat}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
     });
-    // Fetch back the created doc
-    const newResult = await tcbDb.collection('RegAnnotation').doc(addResult._id || addResult.id).get();
-    return newResult.data ? newResult.data[0] || newResult.data : { _id: addResult._id || addResult.id, regId: id, tags: [], notes: [] };
+
+    if (resp.ok) {
+      const result = await resp.json();
+      annotationsSha = result.content.sha;
+      console.log('[Tracker] Annotations pushed to GitHub ✓');
+      showSyncStatus('✓ Synced');
+      return true;
+    } else if (resp.status === 409) {
+      // SHA conflict — someone else updated the file
+      console.warn('[Tracker] SHA conflict, re-fetching and retrying...');
+      showSyncStatus('⚠ Conflict, retrying...');
+      await fetchSharedAnnotations();
+      // Don't auto-retry to avoid infinite loop; user can try again
+      return false;
+    } else if (resp.status === 401 || resp.status === 403) {
+      console.error('[Tracker] PAT invalid or insufficient permissions');
+      showSyncStatus('✕ PAT invalid');
+      return false;
+    } else {
+      const errData = await resp.json().catch(() => ({}));
+      console.error('[Tracker] Push failed:', resp.status, errData.message || resp.statusText);
+      showSyncStatus('✕ Push failed');
+      return false;
+    }
   } catch(err) {
-    console.error('[Tracker] getOrCreate failed:', err);
-    return null;
+    console.error('[Tracker] Push error:', err.message);
+    showSyncStatus('✕ Network error');
+    return false;
+  }
+}
+
+function showSyncStatus(text) {
+  const el = document.getElementById('syncStatus');
+  if (el) {
+    el.textContent = text;
+    el.style.opacity = '1';
+    setTimeout(() => { el.style.opacity = '0.6'; }, 3000);
+  }
+}
+
+function startSyncPoll() {
+  if (syncPollTimer) clearInterval(syncPollTimer);
+  syncPollTimer = setInterval(() => {
+    fetchSharedAnnotations();
+  }, 60000); // Poll every 60s
+}
+
+function loadLocalAnnotations() {
+  // Pre-load all localStorage tags/notes into sharedAnnotations
+  // This ensures local data is available immediately and can be merged with remote data
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith('tags_')) {
+      const id = key.slice(5);
+      try {
+        const raw = JSON.parse(localStorage.getItem(key) || '[]');
+        const tags = raw.map(t => typeof t === 'string' ? {text: t, author: 'Me', createdAt: ''} : t);
+        if (tags.length > 0) {
+          if (!sharedAnnotations[id]) sharedAnnotations[id] = {tags: [], notes: []};
+          sharedAnnotations[id].tags = tags;
+        }
+      } catch {}
+    } else if (key.startsWith('notes_')) {
+      const id = key.slice(6);
+      try {
+        const raw = JSON.parse(localStorage.getItem(key) || '[]');
+        if (Array.isArray(raw) && raw.length > 0) {
+          if (!sharedAnnotations[id]) sharedAnnotations[id] = {tags: [], notes: []};
+          sharedAnnotations[id].notes = raw;
+        }
+      } catch {}
+    }
   }
 }
 
@@ -2269,12 +2483,90 @@ function finishEditNickname() {
   else if (!getNickname()) setNickname('Anonymous');
 }
 
-// ==================== TAGS & NOTES (Shared via CloudBase, fallback to localStorage) ====================
+// ==================== SYNC BAR & SETTINGS PANEL ====================
+function updateSyncBar() {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  const banner = document.getElementById('setupBanner');
+  const patInput = document.getElementById('patInput');
+  if (!dot) return;
+  if (syncEnabled) {
+    dot.className = 'sync-dot on';
+    label.textContent = 'Synced';
+    if (banner) banner.style.display = 'none';
+  } else {
+    dot.className = 'sync-dot off';
+    label.textContent = 'Local';
+    if (banner) banner.style.display = 'block';
+  }
+  if (patInput) patInput.value = getPAT() ? '••••••••' : '';
+}
+
+function toggleSettingsPanel() {
+  const panel = document.getElementById('settingsPanel');
+  const patInput = document.getElementById('patInput');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    patInput.value = getPAT() ? '••••••••' : '';
+    patInput.focus();
+  }
+}
+
+function savePATFromPanel() {
+  const input = document.getElementById('patInput');
+  const val = input.value.trim();
+  if (val && val !== '••••••••') {
+    setPAT(val);
+    showSyncStatus('✓ PAT saved');
+  }
+  document.getElementById('settingsPanel').classList.remove('open');
+}
+
+function clearPATFromPanel() {
+  clearPAT();
+  document.getElementById('patInput').value = '';
+  showSyncStatus('PAT cleared');
+  document.getElementById('settingsPanel').classList.remove('open');
+}
+
+async function testPATFromPanel() {
+  const pat = getPAT();
+  if (!pat) {
+    showSyncStatus('✕ No PAT');
+    return;
+  }
+  showSyncStatus('Testing...');
+  try {
+    const resp = await fetch('https://api.github.com/user', {
+      headers: { 'Authorization': `token ${pat}` }
+    });
+    if (resp.ok) {
+      const user = await resp.json();
+      showSyncStatus('✓ ' + (user.login || 'Valid'));
+    } else {
+      showSyncStatus('✕ Invalid PAT');
+    }
+  } catch(e) {
+    showSyncStatus('✕ Network error');
+  }
+}
+
+// Close settings panel when clicking outside
+document.addEventListener('click', function(e) {
+  const panel = document.getElementById('settingsPanel');
+  const bar = document.getElementById('nicknameBar');
+  if (panel && bar && !panel.contains(e.target) && !bar.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
+
+// ==================== TAGS & NOTES (Shared via GitHub API, fallback to localStorage) ====================
 function getSharedTags(id) {
-  if (tcbReady && sharedAnnotations[id] && sharedAnnotations[id].tags) {
+  // Check in-memory (merged from GitHub + localStorage)
+  if (sharedAnnotations[id] && sharedAnnotations[id].tags && sharedAnnotations[id].tags.length > 0) {
     return sharedAnnotations[id].tags;
   }
-  // Fallback: localStorage (legacy format: string array)
+  // Fallback: localStorage (legacy format)
   try {
     const raw = JSON.parse(localStorage.getItem('tags_' + id) || '[]');
     return raw.map(t => typeof t === 'string' ? {text: t, author: 'Me', createdAt: ''} : t);
@@ -2282,7 +2574,8 @@ function getSharedTags(id) {
 }
 
 function getSharedNotes(id) {
-  if (tcbReady && sharedAnnotations[id] && sharedAnnotations[id].notes) {
+  // Check in-memory (merged from GitHub + localStorage)
+  if (sharedAnnotations[id] && sharedAnnotations[id].notes && sharedAnnotations[id].notes.length > 0) {
     return sharedAnnotations[id].notes;
   }
   // Fallback: localStorage single comment
@@ -2292,73 +2585,58 @@ function getSharedNotes(id) {
 
 function addSharedTag(id, tag) {
   const author = getNickname() || 'Anonymous';
-  if (tcbReady && tcbDb) {
-    getOrCreateAnnotation(id).then(doc => {
-      if (!doc) return;
-      const tags = doc.tags || [];
-      if (!tags.some(t => t.text === tag)) {
-        tags.push({text: tag, author: author, createdAt: new Date().toISOString()});
-        tcbDb.collection('RegAnnotation').doc(doc._id).update({ tags: tags });
-      }
-    }).catch(err => console.error('Add tag failed:', err));
-  } else {
-    const tags = getSharedTags(id);
-    if (!tags.some(t => t.text === tag)) {
-      tags.push({text: tag, author: author, createdAt: new Date().toISOString()});
-      localStorage.setItem('tags_' + id, JSON.stringify(tags));
-      renderTimeline();
-    }
+  const tagObj = {text: tag, author: author, createdAt: new Date().toISOString()};
+  if (!sharedAnnotations[id]) sharedAnnotations[id] = {tags: [], notes: []};
+  if (!sharedAnnotations[id].tags.some(t => t.text === tag)) {
+    sharedAnnotations[id].tags.push(tagObj);
+    pushAnnotations();
   }
+  // Also save locally as backup
+  const localTags = getSharedTags(id);
+  if (!localTags.some(t => t.text === tag)) {
+    localTags.push(tagObj);
+    localStorage.setItem('tags_' + id, JSON.stringify(localTags));
+  }
+  renderTimeline();
 }
 
 function removeSharedTag(id, tagText, author) {
-  if (tcbReady && tcbDb) {
-    getOrCreateAnnotation(id).then(doc => {
-      if (!doc) return;
-      let tags = doc.tags || [];
-      tags = tags.filter(t => !(t.text === tagText && (!author || t.author === author)));
-      tcbDb.collection('RegAnnotation').doc(doc._id).update({ tags: tags });
-    }).catch(err => console.error('Remove tag failed:', err));
-  } else {
-    const tags = getSharedTags(id).filter(t => !(t.text === tagText && (!author || t.author === author)));
-    localStorage.setItem('tags_' + id, JSON.stringify(tags));
-    renderTimeline();
+  if (sharedAnnotations[id] && sharedAnnotations[id].tags) {
+    sharedAnnotations[id].tags = sharedAnnotations[id].tags.filter(t => !(t.text === tagText && (!author || t.author === author)));
+    pushAnnotations();
   }
+  // Also update local backup
+  const localTags = getSharedTags(id).filter(t => !(t.text === tagText && (!author || t.author === author)));
+  localStorage.setItem('tags_' + id, JSON.stringify(localTags));
+  renderTimeline();
 }
 
 function addSharedNote(id, note) {
   const author = getNickname() || 'Anonymous';
-  if (tcbReady && tcbDb) {
-    getOrCreateAnnotation(id).then(doc => {
-      if (!doc) return;
-      const notes = doc.notes || [];
-      notes.push({text: note, author: author, createdAt: new Date().toISOString()});
-      tcbDb.collection('RegAnnotation').doc(doc._id).update({ notes: notes });
-    }).catch(err => console.error('Add note failed:', err));
-  } else {
-    const notes = getSharedNotes(id);
-    notes.push({text: note, author: author, createdAt: new Date().toISOString()});
-    localStorage.setItem('notes_' + id, JSON.stringify(notes));
-    renderTimeline();
-  }
+  const noteObj = {text: note, author: author, createdAt: new Date().toISOString()};
+  if (!sharedAnnotations[id]) sharedAnnotations[id] = {tags: [], notes: []};
+  if (!sharedAnnotations[id].notes) sharedAnnotations[id].notes = [];
+  sharedAnnotations[id].notes.push(noteObj);
+  pushAnnotations();
+  // Also save locally as backup
+  const localNotes = getSharedNotes(id);
+  localNotes.push(noteObj);
+  localStorage.setItem('notes_' + id, JSON.stringify(localNotes));
+  renderTimeline();
 }
 
 function deleteSharedNote(id, noteIndex) {
-  if (tcbReady && tcbDb) {
-    getOrCreateAnnotation(id).then(doc => {
-      if (!doc) return;
-      const notes = doc.notes || [];
-      if (noteIndex >= 0 && noteIndex < notes.length) {
-        notes.splice(noteIndex, 1);
-        tcbDb.collection('RegAnnotation').doc(doc._id).update({ notes: notes });
-      }
-    }).catch(err => console.error('Delete note failed:', err));
-  } else {
-    const notes = getSharedNotes(id);
-    notes.splice(noteIndex, 1);
-    localStorage.setItem('notes_' + id, JSON.stringify(notes));
-    renderTimeline();
+  if (sharedAnnotations[id] && sharedAnnotations[id].notes) {
+    sharedAnnotations[id].notes.splice(noteIndex, 1);
+    pushAnnotations();
   }
+  // Also update local backup
+  const localNotes = getSharedNotes(id);
+  if (noteIndex >= 0 && noteIndex < localNotes.length) {
+    localNotes.splice(noteIndex, 1);
+    localStorage.setItem('notes_' + id, JSON.stringify(localNotes));
+  }
+  renderTimeline();
 }
 
 // ==================== STATE ====================
@@ -2514,13 +2792,13 @@ function renderRegCard(r) {
   const notes = getSharedNotes(r.id);
   const noteCount = notes.length;
   let notesHtml = '';
-  if (noteCount > 0 || tcbReady || TCB_CONFIG.env) {
+  if (noteCount > 0 || syncEnabled) {
     let notesListHtml = '';
     notes.forEach((n, idx) => {
       const noteText = typeof n === 'string' ? n : n.text;
       const noteAuthor = typeof n === 'string' ? '' : n.author;
       const noteTime = (typeof n === 'object' && n.createdAt) ? new Date(n.createdAt).toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
-      const canDelete = !tcbReady || noteAuthor === getNickname();
+      const canDelete = noteAuthor === getNickname() || !noteAuthor;
       notesListHtml += `<div class="shared-note-item"><span class="note-author">${noteAuthor || 'Anonymous'}</span>${escHtml(noteText)}${noteTime ? `<span class="note-time">${noteTime}</span>` : ''}${canDelete ? `<span class="note-delete" onclick="event.stopPropagation();deleteSharedNoteAndRender('${r.id}',${idx})">✕</span>` : ''}</div>`;
     });
     notesHtml = `
@@ -2648,7 +2926,7 @@ function openModal(id) {
     const noteText = typeof n === 'string' ? n : n.text;
     const noteAuthor = typeof n === 'string' ? '' : n.author;
     const noteTime = (typeof n === 'object' && n.createdAt) ? new Date(n.createdAt).toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
-    const canDelete = !tcbReady || noteAuthor === getNickname();
+    const canDelete = noteAuthor === getNickname() || !noteAuthor;
     notesListHtml += `<div class="shared-note-item"><span class="note-author">${noteAuthor || 'Anonymous'}</span>${escHtml(noteText)}${noteTime ? `<span class="note-time">${noteTime}</span>` : ''}${canDelete ? `<span class="note-delete" onclick="deleteNoteFromModal('${r.id}',${idx})">✕</span>` : ''}</div>`;
   });
 
@@ -2716,8 +2994,6 @@ function addNoteFromCard(id) {
   }
   addSharedNote(id, text);
   input.value = '';
-  // For CloudBase, watch will auto-refresh; for localStorage, we need manual refresh
-  if (!tcbReady) renderTimeline();
 }
 
 function addTagFromCard(id) {
@@ -2732,17 +3008,14 @@ function addTagFromCard(id) {
   }
   addSharedTag(id, tag);
   input.value = '';
-  if (!tcbReady) renderTimeline();
 }
 
 function removeSharedTagAndRender(id, tagText, author) {
   removeSharedTag(id, tagText, author);
-  if (!tcbReady) renderTimeline();
 }
 
 function deleteSharedNoteAndRender(id, noteIndex) {
   deleteSharedNote(id, noteIndex);
-  if (!tcbReady) renderTimeline();
 }
 
 function highlightRelated(numberStr) {
@@ -2771,13 +3044,13 @@ function addTagFromModal(id) {
     }
     addSharedTag(id, tag);
     input.value = '';
-    if (!tcbReady) { openModal(id); renderTimeline(); }
+    openModal(id);
   }
 }
 
 function removeTagFromModal(id, tagText, author) {
   removeSharedTag(id, tagText, author);
-  if (!tcbReady) { openModal(id); renderTimeline(); }
+  openModal(id);
 }
 
 function addNoteFromModal(id) {
@@ -2792,13 +3065,13 @@ function addNoteFromModal(id) {
     }
     addSharedNote(id, text);
     input.value = '';
-    if (!tcbReady) { openModal(id); renderTimeline(); }
+    openModal(id);
   }
 }
 
 function deleteNoteFromModal(id, noteIndex) {
   deleteSharedNote(id, noteIndex);
-  if (!tcbReady) { openModal(id); renderTimeline(); }
+  openModal(id);
 }
 
 // ==================== ANIMATION ====================
@@ -2910,6 +3183,7 @@ function init() {
 
   // Initialize nickname
   updateNicknameBar();
+  updateSyncBar();
   if (!getNickname()) {
     // Prompt for nickname after a short delay
     setTimeout(() => {
@@ -2919,10 +3193,11 @@ function init() {
     }, 1000);
   }
 
-  // Initialize CloudBase (if configured)
-  if (typeof cloudbase !== 'undefined') {
-    initCloudBase();
-  }
+  // Load shared annotations from GitHub
+  syncEnabled = !!getPAT();
+  loadLocalAnnotations(); // First load localStorage data for immediate display
+  fetchSharedAnnotations(); // Then fetch & merge with remote data
+  startSyncPoll();
 
   // Initial fetch
   fetchLatestRegulations();
@@ -2932,15 +3207,6 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
-</script>
-
-<!-- Tencent CloudBase SDK (国内CDN，稳定可靠) -->
-<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
-<script>
-// Initialize CloudBase after SDK loads
-if (typeof cloudbase !== 'undefined' && TCB_CONFIG.env) {
-  initCloudBase();
-}
 </script>
 </body>
 </html>
