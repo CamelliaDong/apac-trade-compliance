@@ -1044,7 +1044,7 @@ body {
 .nickname-bar.editing .nickname-display { display: none; }
 .nickname-bar.editing input { display: inline-block; }
 
-/* Firebase setup banner */
+/* Setup banner */
 .setup-banner {
   background: linear-gradient(135deg, #fffbeb, #fef9e7);
   border: 1px solid #f6e05e;
@@ -1207,9 +1207,9 @@ body {
       <h2>📅 Regulation Timeline</h2>
       <span class="reg-count-badge" id="regCount">0</span>
     </div>
-    <!-- Firebase Setup Banner (hidden when configured) -->
+    <!-- Setup Banner (hidden when LeanCloud is configured) -->
     <div class="setup-banner" id="setupBanner" style="display:none;">
-      💡 <strong>Team Collaboration Mode</strong>: To share tags &amp; notes with colleagues, configure Firebase in the code. See <code>FIREBASE_CONFIG</code> in the script section. Without Firebase, tags/notes are stored locally in your browser.
+      💡 <strong>Team Collaboration Mode</strong>: To share tags &amp; notes with colleagues, configure LeanCloud in the code. See <code>LC_CONFIG</code> in the script section. Without LeanCloud, tags/notes are stored locally in your browser.
     </div>
     <div class="timeline" id="timeline"></div>
 
@@ -2126,58 +2126,82 @@ const BUILTIN_REGULATIONS = [
   }
 ];
 
-// ==================== FIREBASE CONFIG ====================
-const FIREBASE_CONFIG = {
-  // ⬇️ PASTE YOUR FIREBASE CONFIG HERE ⬇️
+// ==================== LEANCloud CONFIG ====================
+const LC_CONFIG = {
+  // ⬇️ PASTE YOUR LEANCloud CONFIG HERE ⬇️
   // Steps:
-  // 1. Go to https://console.firebase.google.com (may need VPN)
-  // 2. Create a new project (free)
-  // 3. Add a Web App, copy the config object
-  // 4. Enable Firestore Database (start in test mode)
-  // 5. Paste the config below, e.g.:
-  // apiKey: "AIza...",
-  // authDomain: "your-project.firebaseapp.com",
-  // projectId: "your-project",
-  // storageBucket: "your-project.appspot.com",
-  // messagingSenderId: "123456",
-  // appId: "1:123456:web:abc123"
+  // 1. Go to https://console.leancloud.cn (国内服务，无需VPN)
+  // 2. 注册/登录 → 创建应用（开发版免费）
+  // 3. 设置 → 应用凭证 → 复制 AppID 和 AppKey
+  // 4. 数据存储 → 结构化数据 → 创建 Class: RegAnnotation
+  //    字段: regId(String), tags(Array), notes(Array)
+  // 5. 填入下面的 appId 和 appKey
+  appId: '',
+  appKey: ''
+  // 示例:
+  // appId: 'xYzAbC1234567890',
+  // appKey: 'aBcDeFgHiJkLmNoPqRsTuVwX'
 };
 
-let db = null;
-let firebaseReady = false;
+let lcReady = false;
 let sharedAnnotations = {}; // {regId: {tags: [...], notes: [...]}}
 
-function initFirebase() {
-  if (!FIREBASE_CONFIG.apiKey) {
-    console.log('[Tracker] Firebase not configured, using localStorage for tags/notes');
+function initLeanCloud() {
+  if (!LC_CONFIG.appId || !LC_CONFIG.appKey) {
+    console.log('[Tracker] LeanCloud not configured, using localStorage for tags/notes');
     const banner = document.getElementById('setupBanner');
     if (banner) banner.style.display = 'block';
     return;
   }
   try {
-    firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.firestore();
-    firebaseReady = true;
-    console.log('[Tracker] Firebase initialized ✓');
-    listenToAnnotations();
+    AV.init({ appId: LC_CONFIG.appId, appKey: LC_CONFIG.appKey });
+    lcReady = true;
+    console.log('[Tracker] LeanCloud initialized ✓');
+    loadAllAnnotations();
+    // Poll for updates every 15s (LeanCloud LiveQuery needs extra setup; polling is simpler)
+    setInterval(loadAllAnnotations, 15000);
   } catch(e) {
-    console.error('[Tracker] Firebase init failed:', e);
+    console.error('[Tracker] LeanCloud init failed:', e);
     const banner = document.getElementById('setupBanner');
     if (banner) banner.style.display = 'block';
   }
 }
 
-function listenToAnnotations() {
-  if (!firebaseReady || !db) return;
-  db.collection('reg_annotations').onSnapshot(snapshot => {
-    sharedAnnotations = {};
-    snapshot.forEach(doc => {
-      sharedAnnotations[doc.id] = doc.data();
+async function loadAllAnnotations() {
+  if (!lcReady) return;
+  try {
+    const query = new AV.Query('RegAnnotation');
+    query.limit(1000);
+    const results = await query.find();
+    const newData = {};
+    results.forEach(obj => {
+      const regId = obj.get('regId');
+      newData[regId] = {
+        tags: obj.get('tags') || [],
+        notes: obj.get('notes') || [],
+        _lcObj: obj
+      };
     });
+    sharedAnnotations = newData;
     renderTimeline(); // refresh cards with new shared data
-  }, err => {
-    console.error('[Tracker] Firestore listener error:', err);
-  });
+  } catch(err) {
+    console.error('[Tracker] Load annotations failed:', err);
+  }
+}
+
+async function getOrCreateAnnotation(id) {
+  // Try to find existing
+  const query = new AV.Query('RegAnnotation');
+  query.equalTo('regId', id);
+  const results = await query.find();
+  if (results.length > 0) return results[0];
+  // Create new
+  const obj = new AV.Object('RegAnnotation');
+  obj.set('regId', id);
+  obj.set('tags', []);
+  obj.set('notes', []);
+  await obj.save();
+  return obj;
 }
 
 // ==================== NICKNAME ====================
@@ -2212,9 +2236,9 @@ function finishEditNickname() {
   else if (!getNickname()) setNickname('Anonymous');
 }
 
-// ==================== TAGS & NOTES (Shared via Firebase, fallback to localStorage) ====================
+// ==================== TAGS & NOTES (Shared via LeanCloud, fallback to localStorage) ====================
 function getSharedTags(id) {
-  if (firebaseReady && sharedAnnotations[id] && sharedAnnotations[id].tags) {
+  if (lcReady && sharedAnnotations[id] && sharedAnnotations[id].tags) {
     return sharedAnnotations[id].tags;
   }
   // Fallback: localStorage (legacy format: string array)
@@ -2225,7 +2249,7 @@ function getSharedTags(id) {
 }
 
 function getSharedNotes(id) {
-  if (firebaseReady && sharedAnnotations[id] && sharedAnnotations[id].notes) {
+  if (lcReady && sharedAnnotations[id] && sharedAnnotations[id].notes) {
     return sharedAnnotations[id].notes;
   }
   // Fallback: localStorage single comment
@@ -2235,14 +2259,13 @@ function getSharedNotes(id) {
 
 function addSharedTag(id, tag) {
   const author = getNickname() || 'Anonymous';
-  if (firebaseReady && db) {
-    const docRef = db.collection('reg_annotations').doc(id);
-    db.runTransaction(async transaction => {
-      const doc = await transaction.get(docRef);
-      const data = doc.exists ? doc.data() : {tags: [], notes: []};
-      if (!data.tags.some(t => t.text === tag)) {
-        data.tags.push({text: tag, author: author, createdAt: new Date().toISOString()});
-        transaction.set(docRef, data);
+  if (lcReady) {
+    getOrCreateAnnotation(id).then(obj => {
+      const tags = obj.get('tags') || [];
+      if (!tags.some(t => t.text === tag)) {
+        tags.push({text: tag, author: author, createdAt: new Date().toISOString()});
+        obj.set('tags', tags);
+        obj.save().then(() => loadAllAnnotations());
       }
     }).catch(err => console.error('Add tag failed:', err));
   } else {
@@ -2256,15 +2279,12 @@ function addSharedTag(id, tag) {
 }
 
 function removeSharedTag(id, tagText, author) {
-  if (firebaseReady && db) {
-    const docRef = db.collection('reg_annotations').doc(id);
-    db.runTransaction(async transaction => {
-      const doc = await transaction.get(docRef);
-      if (doc.exists) {
-        const data = doc.data();
-        data.tags = data.tags.filter(t => !(t.text === tagText && (!author || t.author === author)));
-        transaction.set(docRef, data);
-      }
+  if (lcReady) {
+    getOrCreateAnnotation(id).then(obj => {
+      let tags = obj.get('tags') || [];
+      tags = tags.filter(t => !(t.text === tagText && (!author || t.author === author)));
+      obj.set('tags', tags);
+      obj.save().then(() => loadAllAnnotations());
     }).catch(err => console.error('Remove tag failed:', err));
   } else {
     const tags = getSharedTags(id).filter(t => !(t.text === tagText && (!author || t.author === author)));
@@ -2275,13 +2295,12 @@ function removeSharedTag(id, tagText, author) {
 
 function addSharedNote(id, note) {
   const author = getNickname() || 'Anonymous';
-  if (firebaseReady && db) {
-    const docRef = db.collection('reg_annotations').doc(id);
-    db.runTransaction(async transaction => {
-      const doc = await transaction.get(docRef);
-      const data = doc.exists ? doc.data() : {tags: [], notes: []};
-      data.notes.push({text: note, author: author, createdAt: new Date().toISOString()});
-      transaction.set(docRef, data);
+  if (lcReady) {
+    getOrCreateAnnotation(id).then(obj => {
+      const notes = obj.get('notes') || [];
+      notes.push({text: note, author: author, createdAt: new Date().toISOString()});
+      obj.set('notes', notes);
+      obj.save().then(() => loadAllAnnotations());
     }).catch(err => console.error('Add note failed:', err));
   } else {
     const notes = getSharedNotes(id);
@@ -2292,14 +2311,13 @@ function addSharedNote(id, note) {
 }
 
 function deleteSharedNote(id, noteIndex) {
-  if (firebaseReady && db) {
-    const docRef = db.collection('reg_annotations').doc(id);
-    db.runTransaction(async transaction => {
-      const doc = await transaction.get(docRef);
-      if (doc.exists) {
-        const data = doc.data();
-        data.notes.splice(noteIndex, 1);
-        transaction.set(docRef, data);
+  if (lcReady) {
+    getOrCreateAnnotation(id).then(obj => {
+      const notes = obj.get('notes') || [];
+      if (noteIndex >= 0 && noteIndex < notes.length) {
+        notes.splice(noteIndex, 1);
+        obj.set('notes', notes);
+        obj.save().then(() => loadAllAnnotations());
       }
     }).catch(err => console.error('Delete note failed:', err));
   } else {
@@ -2463,13 +2481,13 @@ function renderRegCard(r) {
   const notes = getSharedNotes(r.id);
   const noteCount = notes.length;
   let notesHtml = '';
-  if (noteCount > 0 || firebaseReady || FIREBASE_CONFIG.apiKey) {
+  if (noteCount > 0 || lcReady || LC_CONFIG.appId) {
     let notesListHtml = '';
     notes.forEach((n, idx) => {
       const noteText = typeof n === 'string' ? n : n.text;
       const noteAuthor = typeof n === 'string' ? '' : n.author;
       const noteTime = (typeof n === 'object' && n.createdAt) ? new Date(n.createdAt).toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
-      const canDelete = !firebaseReady || noteAuthor === getNickname();
+      const canDelete = !lcReady || noteAuthor === getNickname();
       notesListHtml += `<div class="shared-note-item"><span class="note-author">${noteAuthor || 'Anonymous'}</span>${escHtml(noteText)}${noteTime ? `<span class="note-time">${noteTime}</span>` : ''}${canDelete ? `<span class="note-delete" onclick="event.stopPropagation();deleteSharedNoteAndRender('${r.id}',${idx})">✕</span>` : ''}</div>`;
     });
     notesHtml = `
@@ -2597,7 +2615,7 @@ function openModal(id) {
     const noteText = typeof n === 'string' ? n : n.text;
     const noteAuthor = typeof n === 'string' ? '' : n.author;
     const noteTime = (typeof n === 'object' && n.createdAt) ? new Date(n.createdAt).toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
-    const canDelete = !firebaseReady || noteAuthor === getNickname();
+    const canDelete = !lcReady || noteAuthor === getNickname();
     notesListHtml += `<div class="shared-note-item"><span class="note-author">${noteAuthor || 'Anonymous'}</span>${escHtml(noteText)}${noteTime ? `<span class="note-time">${noteTime}</span>` : ''}${canDelete ? `<span class="note-delete" onclick="deleteNoteFromModal('${r.id}',${idx})">✕</span>` : ''}</div>`;
   });
 
@@ -2665,8 +2683,8 @@ function addNoteFromCard(id) {
   }
   addSharedNote(id, text);
   input.value = '';
-  // For Firebase, the real-time listener will auto-refresh; for localStorage, we need manual refresh
-  if (!firebaseReady) renderTimeline();
+  // For LeanCloud, polling will auto-refresh; for localStorage, we need manual refresh
+  if (!lcReady) renderTimeline();
 }
 
 function addTagFromCard(id) {
@@ -2681,17 +2699,17 @@ function addTagFromCard(id) {
   }
   addSharedTag(id, tag);
   input.value = '';
-  if (!firebaseReady) renderTimeline();
+  if (!lcReady) renderTimeline();
 }
 
 function removeSharedTagAndRender(id, tagText, author) {
   removeSharedTag(id, tagText, author);
-  if (!firebaseReady) renderTimeline();
+  if (!lcReady) renderTimeline();
 }
 
 function deleteSharedNoteAndRender(id, noteIndex) {
   deleteSharedNote(id, noteIndex);
-  if (!firebaseReady) renderTimeline();
+  if (!lcReady) renderTimeline();
 }
 
 function highlightRelated(numberStr) {
@@ -2720,13 +2738,13 @@ function addTagFromModal(id) {
     }
     addSharedTag(id, tag);
     input.value = '';
-    if (!firebaseReady) { openModal(id); renderTimeline(); }
+    if (!lcReady) { openModal(id); renderTimeline(); }
   }
 }
 
 function removeTagFromModal(id, tagText, author) {
   removeSharedTag(id, tagText, author);
-  if (!firebaseReady) { openModal(id); renderTimeline(); }
+  if (!lcReady) { openModal(id); renderTimeline(); }
 }
 
 function addNoteFromModal(id) {
@@ -2741,13 +2759,13 @@ function addNoteFromModal(id) {
     }
     addSharedNote(id, text);
     input.value = '';
-    if (!firebaseReady) { openModal(id); renderTimeline(); }
+    if (!lcReady) { openModal(id); renderTimeline(); }
   }
 }
 
 function deleteNoteFromModal(id, noteIndex) {
   deleteSharedNote(id, noteIndex);
-  if (!firebaseReady) { openModal(id); renderTimeline(); }
+  if (!lcReady) { openModal(id); renderTimeline(); }
 }
 
 // ==================== ANIMATION ====================
@@ -2868,9 +2886,9 @@ function init() {
     }, 1000);
   }
 
-  // Initialize Firebase (if configured)
-  if (typeof firebase !== 'undefined' && firebase.initializeApp) {
-    initFirebase();
+  // Initialize LeanCloud (if configured)
+  if (typeof AV !== 'undefined') {
+    initLeanCloud();
   }
 
   // Initial fetch
@@ -2883,13 +2901,12 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 
-<!-- Firebase SDK (loaded after app script so app works even if CDN is blocked) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- LeanCloud SDK (国内CDN，无需VPN) -->
+<script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4/dist/av-min.js"></script>
 <script>
-// Initialize Firebase after SDK loads
-if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.apiKey) {
-  initFirebase();
+// Initialize LeanCloud after SDK loads
+if (typeof AV !== 'undefined' && LC_CONFIG.appId) {
+  initLeanCloud();
 }
 </script>
 </body>
