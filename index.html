@@ -1365,10 +1365,12 @@ body {
   <h4>⚙️ GitHub Sync Settings</h4>
   <label>GitHub Personal Access Token (PAT)</label>
   <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+  <div id="patStatus" style="display:none;padding:8px;margin-bottom:8px;background:rgba(56,161,105,0.1);border-radius:6px;font-size:11px;color:#38a169;"></div>
   <div class="btn-row">
     <button class="primary" onclick="savePATFromPanel()">Save</button>
     <button onclick="clearPATFromPanel()">Clear</button>
     <button onclick="testPATFromPanel()">Test</button>
+    <button onclick="document.getElementById('settingsPanel').classList.remove('open')">✕</button>
   </div>
   <div class="help-text">
     <strong>How to get a PAT:</strong><br>
@@ -2488,7 +2490,6 @@ function updateSyncBar() {
   const dot = document.getElementById('syncDot');
   const label = document.getElementById('syncLabel');
   const banner = document.getElementById('setupBanner');
-  const patInput = document.getElementById('patInput');
   if (!dot) return;
   if (syncEnabled) {
     dot.className = 'sync-dot on';
@@ -2499,16 +2500,13 @@ function updateSyncBar() {
     label.textContent = 'Local';
     if (banner) banner.style.display = 'block';
   }
-  if (patInput) patInput.value = getPAT() ? '••••••••' : '';
 }
 
 function toggleSettingsPanel() {
   const panel = document.getElementById('settingsPanel');
-  const patInput = document.getElementById('patInput');
   panel.classList.toggle('open');
   if (panel.classList.contains('open')) {
-    patInput.value = getPAT() ? '••••••••' : '';
-    patInput.focus();
+    updateSettingsPanelState();
   }
 }
 
@@ -2517,25 +2515,50 @@ function savePATFromPanel() {
   const val = input.value.trim();
   if (val && val !== '••••••••') {
     setPAT(val);
-    showSyncStatus('✓ PAT saved');
+    showSyncStatus('✓ PAT saved & synced');
   }
-  document.getElementById('settingsPanel').classList.remove('open');
+  // Update panel to show saved state
+  updateSettingsPanelState();
+}
+
+function updateSettingsPanelState() {
+  const input = document.getElementById('patInput');
+  const statusDiv = document.getElementById('patStatus');
+  const saved = !!getPAT();
+  if (saved) {
+    input.value = '';
+    input.placeholder = 'Token saved ✓ (re-enter to update)';
+    input.style.display = 'none';
+    if (statusDiv) {
+      statusDiv.style.display = 'block';
+      statusDiv.innerHTML = '✅ GitHub token saved — sync enabled<br><small style="color:var(--text-muted)">Click "Clear" to remove, or re-enter to update</small>';
+    }
+  } else {
+    input.style.display = 'block';
+    input.placeholder = 'ghp_xxxxxxxxxxxx';
+    input.value = '';
+    if (statusDiv) {
+      statusDiv.style.display = 'none';
+    }
+  }
 }
 
 function clearPATFromPanel() {
   clearPAT();
-  document.getElementById('patInput').value = '';
   showSyncStatus('PAT cleared');
-  document.getElementById('settingsPanel').classList.remove('open');
+  updateSettingsPanelState();
 }
 
 async function testPATFromPanel() {
   const pat = getPAT();
+  const statusDiv = document.getElementById('patStatus');
   if (!pat) {
     showSyncStatus('✕ No PAT');
+    if (statusDiv) { statusDiv.style.display = 'block'; statusDiv.innerHTML = '❌ No token saved'; statusDiv.style.background = 'rgba(229,62,62,0.1)'; statusDiv.style.color = '#e53e3e'; }
     return;
   }
   showSyncStatus('Testing...');
+  if (statusDiv) { statusDiv.style.display = 'block'; statusDiv.innerHTML = '⏳ Testing token...'; statusDiv.style.background = 'rgba(45,91,227,0.1)'; statusDiv.style.color = '#2d5be3'; }
   try {
     const resp = await fetch('https://api.github.com/user', {
       headers: { 'Authorization': `token ${pat}` }
@@ -2543,11 +2566,14 @@ async function testPATFromPanel() {
     if (resp.ok) {
       const user = await resp.json();
       showSyncStatus('✓ ' + (user.login || 'Valid'));
+      if (statusDiv) { statusDiv.innerHTML = `✅ Token valid — logged in as <strong>@${user.login}</strong>`; statusDiv.style.background = 'rgba(56,161,105,0.1)'; statusDiv.style.color = '#38a169'; }
     } else {
       showSyncStatus('✕ Invalid PAT');
+      if (statusDiv) { statusDiv.innerHTML = '❌ Token invalid or expired'; statusDiv.style.background = 'rgba(229,62,62,0.1)'; statusDiv.style.color = '#e53e3e'; }
     }
   } catch(e) {
     showSyncStatus('✕ Network error');
+    if (statusDiv) { statusDiv.innerHTML = '❌ Network error — check connection'; statusDiv.style.background = 'rgba(229,62,62,0.1)'; statusDiv.style.color = '#e53e3e'; }
   }
 }
 
