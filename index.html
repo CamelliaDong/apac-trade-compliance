@@ -3221,6 +3221,7 @@ function init() {
   // Load shared annotations from GitHub
   syncEnabled = !!getPAT();
   loadLocalAnnotations(); // First load localStorage data for immediate display
+  updateSyncBar();        // Update UI after syncEnabled is set
   fetchSharedAnnotations(); // Then fetch & merge with remote data
   startSyncPoll();
 
