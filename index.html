@@ -2587,16 +2587,13 @@ function addSharedTag(id, tag) {
   const author = getNickname() || 'Anonymous';
   const tagObj = {text: tag, author: author, createdAt: new Date().toISOString()};
   if (!sharedAnnotations[id]) sharedAnnotations[id] = {tags: [], notes: []};
+  if (!sharedAnnotations[id].tags) sharedAnnotations[id].tags = [];
   if (!sharedAnnotations[id].tags.some(t => t.text === tag)) {
     sharedAnnotations[id].tags.push(tagObj);
     pushAnnotations();
   }
-  // Also save locally as backup
-  const localTags = getSharedTags(id);
-  if (!localTags.some(t => t.text === tag)) {
-    localTags.push(tagObj);
-    localStorage.setItem('tags_' + id, JSON.stringify(localTags));
-  }
+  // Save to localStorage as offline backup
+  localStorage.setItem('tags_' + id, JSON.stringify(sharedAnnotations[id].tags));
   renderTimeline();
 }
 
@@ -2616,12 +2613,14 @@ function addSharedNote(id, note) {
   const noteObj = {text: note, author: author, createdAt: new Date().toISOString()};
   if (!sharedAnnotations[id]) sharedAnnotations[id] = {tags: [], notes: []};
   if (!sharedAnnotations[id].notes) sharedAnnotations[id].notes = [];
+  // Dedup: avoid adding identical note from rapid double-submit
+  if (sharedAnnotations[id].notes.some(n => n.text === note && n.author === author && n.createdAt === noteObj.createdAt)) {
+    return;
+  }
   sharedAnnotations[id].notes.push(noteObj);
   pushAnnotations();
-  // Also save locally as backup
-  const localNotes = getSharedNotes(id);
-  localNotes.push(noteObj);
-  localStorage.setItem('notes_' + id, JSON.stringify(localNotes));
+  // Save to localStorage as offline backup (copy of current state)
+  localStorage.setItem('notes_' + id, JSON.stringify(sharedAnnotations[id].notes));
   renderTimeline();
 }
 
