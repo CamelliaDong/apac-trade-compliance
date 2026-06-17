@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   check-updates:
@@ -72,12 +73,10 @@ jobs:
           print('\n'.join(lines))
           ")
           
-          # Create issue using GitHub CLI
+          # Create issue using GitHub CLI (no custom labels - they may not exist)
           echo "$BODY" | gh issue create \
             --title "$TITLE" \
-            --body-file - \
-            --label "auto-detected" \
-            --label "review-needed" || true
+            --body-file - || true
 
       - name: Cleanup
         if: always()
