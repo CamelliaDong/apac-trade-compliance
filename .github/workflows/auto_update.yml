@@ -1,0 +1,85 @@
+name: Auto Update Regulations
+
+on:
+  schedule:
+    # Run every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC (08:00, 14:00, 20:00, 02:00 Beijing time)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 lxml
+
+      - name: Run auto-update check
+        run: |
+          python scripts/auto_update.py
+        env:
+          PYTHONIOENCODING: utf-8
+
+      - name: Check for notification file
+        id: check_notification
+        run: |
+          if [ -f "new_regulations.json" ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            cat new_regulations.json
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "No new regulations found"
+          fi
+
+      - name: Create GitHub Issue for new regulations
+        if: steps.check_notification.outputs.has_updates == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Read the notification data
+          TITLE="🆕 New Regulations Detected - $(date +%Y-%m-%d)"
+          BODY=$(python3 -c "
+          import json
+          with open('new_regulations.json', 'r') as f:
+              data = json.load(f)
+          lines = ['## New Regulations Detected', '']
+          lines.append(f'**Check Time:** {data[\"timestamp\"]}', )
+          lines.append('')
+          lines.append('The following new regulations were detected from official sources:')
+          lines.append('')
+          for reg in data['new_regulations']:
+              lines.append(f'### {reg.get(\"numberCN\", reg.get(\"numberCN_raw\", \"Unknown\"))}')
+              lines.append(f'- **Source:** {reg[\"source_type\"]}')
+              lines.append(f'- **URL:** {reg[\"url\"]}')
+              lines.append('')
+          lines.append('---')
+          lines.append('')
+          lines.append('⚠️ **Manual review required** before adding these to the tracker.')
+          lines.append('Please verify the regulation details (dates, category, description) against the original source.')
+          print('\n'.join(lines))
+          ")
+          
+          # Create issue using GitHub CLI
+          echo "$BODY" | gh issue create \
+            --title "$TITLE" \
+            --body-file - \
+            --label "auto-detected" \
+            --label "review-needed" || true
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f new_regulations.json
