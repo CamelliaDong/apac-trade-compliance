@@ -1207,9 +1207,9 @@ body {
       <h2>📅 Regulation Timeline</h2>
       <span class="reg-count-badge" id="regCount">0</span>
     </div>
-    <!-- Setup Banner (hidden when LeanCloud is configured) -->
+    <!-- Setup Banner (hidden when CloudBase is configured) -->
     <div class="setup-banner" id="setupBanner" style="display:none;">
-      💡 <strong>Team Collaboration Mode</strong>: To share tags &amp; notes with colleagues, configure LeanCloud in the code. See <code>LC_CONFIG</code> in the script section. Without LeanCloud, tags/notes are stored locally in your browser.
+      💡 <strong>Team Collaboration Mode</strong>: To share tags &amp; notes with colleagues, configure Tencent CloudBase in the code. See <code>TCB_CONFIG</code> in the script section. Without CloudBase, tags/notes are stored locally in your browser.
     </div>
     <div class="timeline" id="timeline"></div>
 
@@ -2126,82 +2126,115 @@ const BUILTIN_REGULATIONS = [
   }
 ];
 
-// ==================== LEANCloud CONFIG ====================
-const LC_CONFIG = {
-  // ⬇️ PASTE YOUR LEANCloud CONFIG HERE ⬇️
-  // Steps:
-  // 1. Go to https://console.leancloud.cn (国内服务，无需VPN)
-  // 2. 注册/登录 → 创建应用（开发版免费）
-  // 3. 设置 → 应用凭证 → 复制 AppID 和 AppKey
-  // 4. 数据存储 → 结构化数据 → 创建 Class: RegAnnotation
-  //    字段: regId(String), tags(Array), notes(Array)
-  // 5. 填入下面的 appId 和 appKey
-  appId: '',
-  appKey: ''
+// ==================== TENCENT CLOUDBASE CONFIG ====================
+const TCB_CONFIG = {
+  // ⬇️ 填入你的腾讯云开发环境 ID ⬇️
+  // 设置步骤（5分钟）：
+  // 1. 访问 https://tcb.cloud.tencent.com → 注册/登录（微信扫码即可）
+  // 2. 点击「新建环境」→ 选择「免费体验版」（3000资源点/月，够用）→ 填写环境名称
+  // 3. 进入环境 → 数据库 → 点击「+」添加集合，名称填：RegAnnotation
+  // 4. 点击 RegAnnotation 集合 → 添加字段：regId(String), tags(Array), notes(Array)
+  // 5. 进入「设置」→「环境ID」→ 复制环境ID，填入下方 env
+  // 6. 进入「设置」→「安全配置」→ 添加安全域名：camelliadong.github.io
+  // 7. 进入「用户管理」→「登录设置」→ 开启「匿名登录」
+  env: ''
   // 示例:
-  // appId: 'xYzAbC1234567890',
-  // appKey: 'aBcDeFgHiJkLmNoPqRsTuVwX'
+  // env: 'apac-trade-9g8h7k'
 };
 
-let lcReady = false;
+let tcbReady = false;
+let tcbDb = null;
+let tcbWatcher = null;
 let sharedAnnotations = {}; // {regId: {tags: [...], notes: [...]}}
 
-function initLeanCloud() {
-  if (!LC_CONFIG.appId || !LC_CONFIG.appKey) {
-    console.log('[Tracker] LeanCloud not configured, using localStorage for tags/notes');
+function initCloudBase() {
+  if (!TCB_CONFIG.env) {
+    console.log('[Tracker] CloudBase not configured, using localStorage for tags/notes');
     const banner = document.getElementById('setupBanner');
     if (banner) banner.style.display = 'block';
     return;
   }
   try {
-    AV.init({ appId: LC_CONFIG.appId, appKey: LC_CONFIG.appKey });
-    lcReady = true;
-    console.log('[Tracker] LeanCloud initialized ✓');
-    loadAllAnnotations();
-    // Poll for updates every 15s (LeanCloud LiveQuery needs extra setup; polling is simpler)
-    setInterval(loadAllAnnotations, 15000);
+    const app = cloudbase.init({ env: TCB_CONFIG.env, region: 'ap-shanghai' });
+    const auth = app.auth({ persistence: 'local' });
+    auth.signInAnonymously().then(() => {
+      tcbDb = app.database();
+      tcbReady = true;
+      console.log('[Tracker] CloudBase initialized ✓');
+      loadAllAnnotations();
+      // Real-time watch for changes
+      watchAnnotations();
+    }).catch(err => {
+      console.error('[Tracker] CloudBase auth failed:', err);
+      // Still try to use without auth (may fail on DB ops)
+      tcbDb = app.database();
+      tcbReady = true;
+      loadAllAnnotations();
+    });
   } catch(e) {
-    console.error('[Tracker] LeanCloud init failed:', e);
+    console.error('[Tracker] CloudBase init failed:', e);
     const banner = document.getElementById('setupBanner');
     if (banner) banner.style.display = 'block';
   }
 }
 
 async function loadAllAnnotations() {
-  if (!lcReady) return;
+  if (!tcbReady || !tcbDb) return;
   try {
-    const query = new AV.Query('RegAnnotation');
-    query.limit(1000);
-    const results = await query.find();
+    const result = await tcbDb.collection('RegAnnotation').limit(1000).get();
     const newData = {};
-    results.forEach(obj => {
-      const regId = obj.get('regId');
-      newData[regId] = {
-        tags: obj.get('tags') || [],
-        notes: obj.get('notes') || [],
-        _lcObj: obj
+    (result.data || []).forEach(doc => {
+      newData[doc.regId] = {
+        tags: doc.tags || [],
+        notes: doc.notes || [],
+        _docId: doc._id
       };
     });
     sharedAnnotations = newData;
-    renderTimeline(); // refresh cards with new shared data
+    renderTimeline();
   } catch(err) {
     console.error('[Tracker] Load annotations failed:', err);
   }
 }
 
+function watchAnnotations() {
+  if (!tcbReady || !tcbDb) return;
+  try {
+    tcbWatcher = tcbDb.collection('RegAnnotation').watch({
+      onChange: function(snapshot) {
+        // Re-load all data when changes detected
+        loadAllAnnotations();
+      },
+      onError: function(err) {
+        console.error('[Tracker] Watch error:', err);
+        // Retry watch after 10s
+        setTimeout(watchAnnotations, 10000);
+      }
+    });
+  } catch(e) {
+    console.error('[Tracker] Watch setup failed:', e);
+  }
+}
+
 async function getOrCreateAnnotation(id) {
-  // Try to find existing
-  const query = new AV.Query('RegAnnotation');
-  query.equalTo('regId', id);
-  const results = await query.find();
-  if (results.length > 0) return results[0];
-  // Create new
-  const obj = new AV.Object('RegAnnotation');
-  obj.set('regId', id);
-  obj.set('tags', []);
-  obj.set('notes', []);
-  await obj.save();
-  return obj;
+  if (!tcbReady || !tcbDb) return null;
+  try {
+    // Try to find existing
+    const result = await tcbDb.collection('RegAnnotation').where({ regId: id }).limit(1).get();
+    if (result.data && result.data.length > 0) return result.data[0];
+    // Create new
+    const addResult = await tcbDb.collection('RegAnnotation').add({
+      regId: id,
+      tags: [],
+      notes: []
+    });
+    // Fetch back the created doc
+    const newResult = await tcbDb.collection('RegAnnotation').doc(addResult._id || addResult.id).get();
+    return newResult.data ? newResult.data[0] || newResult.data : { _id: addResult._id || addResult.id, regId: id, tags: [], notes: [] };
+  } catch(err) {
+    console.error('[Tracker] getOrCreate failed:', err);
+    return null;
+  }
 }
 
 // ==================== NICKNAME ====================
@@ -2236,9 +2269,9 @@ function finishEditNickname() {
   else if (!getNickname()) setNickname('Anonymous');
 }
 
-// ==================== TAGS & NOTES (Shared via LeanCloud, fallback to localStorage) ====================
+// ==================== TAGS & NOTES (Shared via CloudBase, fallback to localStorage) ====================
 function getSharedTags(id) {
-  if (lcReady && sharedAnnotations[id] && sharedAnnotations[id].tags) {
+  if (tcbReady && sharedAnnotations[id] && sharedAnnotations[id].tags) {
     return sharedAnnotations[id].tags;
   }
   // Fallback: localStorage (legacy format: string array)
@@ -2249,7 +2282,7 @@ function getSharedTags(id) {
 }
 
 function getSharedNotes(id) {
-  if (lcReady && sharedAnnotations[id] && sharedAnnotations[id].notes) {
+  if (tcbReady && sharedAnnotations[id] && sharedAnnotations[id].notes) {
     return sharedAnnotations[id].notes;
   }
   // Fallback: localStorage single comment
@@ -2259,13 +2292,13 @@ function getSharedNotes(id) {
 
 function addSharedTag(id, tag) {
   const author = getNickname() || 'Anonymous';
-  if (lcReady) {
-    getOrCreateAnnotation(id).then(obj => {
-      const tags = obj.get('tags') || [];
+  if (tcbReady && tcbDb) {
+    getOrCreateAnnotation(id).then(doc => {
+      if (!doc) return;
+      const tags = doc.tags || [];
       if (!tags.some(t => t.text === tag)) {
         tags.push({text: tag, author: author, createdAt: new Date().toISOString()});
-        obj.set('tags', tags);
-        obj.save().then(() => loadAllAnnotations());
+        tcbDb.collection('RegAnnotation').doc(doc._id).update({ tags: tags });
       }
     }).catch(err => console.error('Add tag failed:', err));
   } else {
@@ -2279,12 +2312,12 @@ function addSharedTag(id, tag) {
 }
 
 function removeSharedTag(id, tagText, author) {
-  if (lcReady) {
-    getOrCreateAnnotation(id).then(obj => {
-      let tags = obj.get('tags') || [];
+  if (tcbReady && tcbDb) {
+    getOrCreateAnnotation(id).then(doc => {
+      if (!doc) return;
+      let tags = doc.tags || [];
       tags = tags.filter(t => !(t.text === tagText && (!author || t.author === author)));
-      obj.set('tags', tags);
-      obj.save().then(() => loadAllAnnotations());
+      tcbDb.collection('RegAnnotation').doc(doc._id).update({ tags: tags });
     }).catch(err => console.error('Remove tag failed:', err));
   } else {
     const tags = getSharedTags(id).filter(t => !(t.text === tagText && (!author || t.author === author)));
@@ -2295,12 +2328,12 @@ function removeSharedTag(id, tagText, author) {
 
 function addSharedNote(id, note) {
   const author = getNickname() || 'Anonymous';
-  if (lcReady) {
-    getOrCreateAnnotation(id).then(obj => {
-      const notes = obj.get('notes') || [];
+  if (tcbReady && tcbDb) {
+    getOrCreateAnnotation(id).then(doc => {
+      if (!doc) return;
+      const notes = doc.notes || [];
       notes.push({text: note, author: author, createdAt: new Date().toISOString()});
-      obj.set('notes', notes);
-      obj.save().then(() => loadAllAnnotations());
+      tcbDb.collection('RegAnnotation').doc(doc._id).update({ notes: notes });
     }).catch(err => console.error('Add note failed:', err));
   } else {
     const notes = getSharedNotes(id);
@@ -2311,13 +2344,13 @@ function addSharedNote(id, note) {
 }
 
 function deleteSharedNote(id, noteIndex) {
-  if (lcReady) {
-    getOrCreateAnnotation(id).then(obj => {
-      const notes = obj.get('notes') || [];
+  if (tcbReady && tcbDb) {
+    getOrCreateAnnotation(id).then(doc => {
+      if (!doc) return;
+      const notes = doc.notes || [];
       if (noteIndex >= 0 && noteIndex < notes.length) {
         notes.splice(noteIndex, 1);
-        obj.set('notes', notes);
-        obj.save().then(() => loadAllAnnotations());
+        tcbDb.collection('RegAnnotation').doc(doc._id).update({ notes: notes });
       }
     }).catch(err => console.error('Delete note failed:', err));
   } else {
@@ -2481,13 +2514,13 @@ function renderRegCard(r) {
   const notes = getSharedNotes(r.id);
   const noteCount = notes.length;
   let notesHtml = '';
-  if (noteCount > 0 || lcReady || LC_CONFIG.appId) {
+  if (noteCount > 0 || tcbReady || TCB_CONFIG.env) {
     let notesListHtml = '';
     notes.forEach((n, idx) => {
       const noteText = typeof n === 'string' ? n : n.text;
       const noteAuthor = typeof n === 'string' ? '' : n.author;
       const noteTime = (typeof n === 'object' && n.createdAt) ? new Date(n.createdAt).toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
-      const canDelete = !lcReady || noteAuthor === getNickname();
+      const canDelete = !tcbReady || noteAuthor === getNickname();
       notesListHtml += `<div class="shared-note-item"><span class="note-author">${noteAuthor || 'Anonymous'}</span>${escHtml(noteText)}${noteTime ? `<span class="note-time">${noteTime}</span>` : ''}${canDelete ? `<span class="note-delete" onclick="event.stopPropagation();deleteSharedNoteAndRender('${r.id}',${idx})">✕</span>` : ''}</div>`;
     });
     notesHtml = `
@@ -2615,7 +2648,7 @@ function openModal(id) {
     const noteText = typeof n === 'string' ? n : n.text;
     const noteAuthor = typeof n === 'string' ? '' : n.author;
     const noteTime = (typeof n === 'object' && n.createdAt) ? new Date(n.createdAt).toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
-    const canDelete = !lcReady || noteAuthor === getNickname();
+    const canDelete = !tcbReady || noteAuthor === getNickname();
     notesListHtml += `<div class="shared-note-item"><span class="note-author">${noteAuthor || 'Anonymous'}</span>${escHtml(noteText)}${noteTime ? `<span class="note-time">${noteTime}</span>` : ''}${canDelete ? `<span class="note-delete" onclick="deleteNoteFromModal('${r.id}',${idx})">✕</span>` : ''}</div>`;
   });
 
@@ -2683,8 +2716,8 @@ function addNoteFromCard(id) {
   }
   addSharedNote(id, text);
   input.value = '';
-  // For LeanCloud, polling will auto-refresh; for localStorage, we need manual refresh
-  if (!lcReady) renderTimeline();
+  // For CloudBase, watch will auto-refresh; for localStorage, we need manual refresh
+  if (!tcbReady) renderTimeline();
 }
 
 function addTagFromCard(id) {
@@ -2699,17 +2732,17 @@ function addTagFromCard(id) {
   }
   addSharedTag(id, tag);
   input.value = '';
-  if (!lcReady) renderTimeline();
+  if (!tcbReady) renderTimeline();
 }
 
 function removeSharedTagAndRender(id, tagText, author) {
   removeSharedTag(id, tagText, author);
-  if (!lcReady) renderTimeline();
+  if (!tcbReady) renderTimeline();
 }
 
 function deleteSharedNoteAndRender(id, noteIndex) {
   deleteSharedNote(id, noteIndex);
-  if (!lcReady) renderTimeline();
+  if (!tcbReady) renderTimeline();
 }
 
 function highlightRelated(numberStr) {
@@ -2738,13 +2771,13 @@ function addTagFromModal(id) {
     }
     addSharedTag(id, tag);
     input.value = '';
-    if (!lcReady) { openModal(id); renderTimeline(); }
+    if (!tcbReady) { openModal(id); renderTimeline(); }
   }
 }
 
 function removeTagFromModal(id, tagText, author) {
   removeSharedTag(id, tagText, author);
-  if (!lcReady) { openModal(id); renderTimeline(); }
+  if (!tcbReady) { openModal(id); renderTimeline(); }
 }
 
 function addNoteFromModal(id) {
@@ -2759,13 +2792,13 @@ function addNoteFromModal(id) {
     }
     addSharedNote(id, text);
     input.value = '';
-    if (!lcReady) { openModal(id); renderTimeline(); }
+    if (!tcbReady) { openModal(id); renderTimeline(); }
   }
 }
 
 function deleteNoteFromModal(id, noteIndex) {
   deleteSharedNote(id, noteIndex);
-  if (!lcReady) { openModal(id); renderTimeline(); }
+  if (!tcbReady) { openModal(id); renderTimeline(); }
 }
 
 // ==================== ANIMATION ====================
@@ -2886,9 +2919,9 @@ function init() {
     }, 1000);
   }
 
-  // Initialize LeanCloud (if configured)
-  if (typeof AV !== 'undefined') {
-    initLeanCloud();
+  // Initialize CloudBase (if configured)
+  if (typeof cloudbase !== 'undefined') {
+    initCloudBase();
   }
 
   // Initial fetch
@@ -2901,12 +2934,12 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 
-<!-- LeanCloud SDK (国内CDN，无需VPN) -->
-<script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4/dist/av-min.js"></script>
+<!-- Tencent CloudBase SDK (国内CDN，稳定可靠) -->
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
 <script>
-// Initialize LeanCloud after SDK loads
-if (typeof AV !== 'undefined' && LC_CONFIG.appId) {
-  initLeanCloud();
+// Initialize CloudBase after SDK loads
+if (typeof cloudbase !== 'undefined' && TCB_CONFIG.env) {
+  initCloudBase();
 }
 </script>
 </body>
