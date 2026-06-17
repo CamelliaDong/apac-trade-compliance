@@ -894,6 +894,175 @@ body {
   white-space: pre-wrap;
 }
 
+/* Shared Notes Area on Card */
+.card-notes-toggle {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+}
+.card-notes-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 2px 0;
+  user-select: none;
+  transition: color 0.15s;
+}
+.card-notes-header:hover { color: var(--accent-blue); }
+.card-notes-header .arrow { transition: transform 0.2s; font-size: 10px; }
+.card-notes-header .arrow.open { transform: rotate(90deg); }
+.card-notes-body {
+  display: none;
+  margin-top: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.card-notes-body.expanded { display: block; }
+.shared-note-item {
+  padding: 5px 8px;
+  background: #f0f4ff;
+  border-radius: 5px;
+  margin: 3px 0;
+  font-size: 11px;
+  line-height: 1.5;
+  position: relative;
+}
+.shared-note-item .note-author {
+  font-weight: 700;
+  color: var(--accent-blue);
+  margin-right: 4px;
+}
+.shared-note-item .note-time {
+  color: var(--text-muted);
+  font-size: 9px;
+  margin-left: 6px;
+}
+.shared-note-item .note-delete {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  cursor: pointer;
+  opacity: 0;
+  font-size: 11px;
+  color: var(--accent-red);
+  transition: opacity 0.15s;
+}
+.shared-note-item:hover .note-delete { opacity: 0.7; }
+.shared-note-item .note-delete:hover { opacity: 1; }
+.card-quick-input {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.card-quick-input input {
+  flex: 1;
+  padding: 3px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 10px;
+  outline: none;
+  min-width: 0;
+}
+.card-quick-input input:focus { border-color: var(--accent-blue); }
+.card-quick-input button {
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent-blue);
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.card-quick-input button:hover { background: #1e4bc2; }
+.shared-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #eef0ff;
+  color: var(--accent-blue);
+  border: 1px solid #d0d5f7;
+}
+.shared-tag-chip .tag-author {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.shared-tag-chip .tag-remove {
+  cursor: pointer;
+  font-size: 11px;
+  opacity: 0.5;
+  margin-left: 1px;
+}
+.shared-tag-chip .tag-remove:hover { opacity: 1; }
+
+/* Nickname bar */
+.nickname-bar {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  box-shadow: var(--shadow-md);
+  font-size: 11px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: box-shadow 0.2s;
+}
+.nickname-bar:hover { box-shadow: var(--shadow-lg); }
+.nickname-bar .nickname-label { color: var(--text-muted); }
+.nickname-bar .nickname-display {
+  font-weight: 700;
+  color: var(--accent-blue);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nickname-bar input {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 11px;
+  outline: none;
+  width: 90px;
+  display: none;
+}
+.nickname-bar input:focus { border-color: var(--accent-blue); }
+.nickname-bar.editing .nickname-display { display: none; }
+.nickname-bar.editing input { display: inline-block; }
+
+/* Firebase setup banner */
+.setup-banner {
+  background: linear-gradient(135deg, #fffbeb, #fef9e7);
+  border: 1px solid #f6e05e;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #744210;
+}
+.setup-banner strong { color: #975a16; }
+.setup-banner code {
+  background: #fefcbf;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
 /* ========== Utility ========== */
 .fade-in { animation: fadeIn 0.35s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -1038,6 +1207,10 @@ body {
       <h2>📅 Regulation Timeline</h2>
       <span class="reg-count-badge" id="regCount">0</span>
     </div>
+    <!-- Firebase Setup Banner (hidden when configured) -->
+    <div class="setup-banner" id="setupBanner" style="display:none;">
+      💡 <strong>Team Collaboration Mode</strong>: To share tags &amp; notes with colleagues, configure Firebase in the code. See <code>FIREBASE_CONFIG</code> in the script section. Without Firebase, tags/notes are stored locally in your browser.
+    </div>
     <div class="timeline" id="timeline"></div>
 
     <!-- Animation Timeline -->
@@ -1091,6 +1264,13 @@ body {
 <div class="fetch-toast" id="fetchToast">
   <div class="spinner"></div>
   <span id="fetchToastText">Fetching latest regulations...</span>
+</div>
+
+<!-- Nickname Bar -->
+<div class="nickname-bar" id="nicknameBar">
+  <span class="nickname-label">👤</span>
+  <span class="nickname-display" id="nicknameDisplay" onclick="startEditNickname()">Anonymous</span>
+  <input type="text" id="nicknameInput" placeholder="Your name" onkeydown="if(event.key==='Enter')finishEditNickname()" onblur="finishEditNickname()">
 </div>
 
 <script>
@@ -1946,26 +2126,188 @@ const BUILTIN_REGULATIONS = [
   }
 ];
 
-// ==================== TAGS & COMMENTS (localStorage) ====================
-function getTags(id) {
-  try { return JSON.parse(localStorage.getItem('tags_' + id) || '[]'); } catch { return []; }
+// ==================== FIREBASE CONFIG ====================
+const FIREBASE_CONFIG = {
+  // ⬇️ PASTE YOUR FIREBASE CONFIG HERE ⬇️
+  // Steps:
+  // 1. Go to https://console.firebase.google.com (may need VPN)
+  // 2. Create a new project (free)
+  // 3. Add a Web App, copy the config object
+  // 4. Enable Firestore Database (start in test mode)
+  // 5. Paste the config below, e.g.:
+  // apiKey: "AIza...",
+  // authDomain: "your-project.firebaseapp.com",
+  // projectId: "your-project",
+  // storageBucket: "your-project.appspot.com",
+  // messagingSenderId: "123456",
+  // appId: "1:123456:web:abc123"
+};
+
+let db = null;
+let firebaseReady = false;
+let sharedAnnotations = {}; // {regId: {tags: [...], notes: [...]}}
+
+function initFirebase() {
+  if (!FIREBASE_CONFIG.apiKey) {
+    console.log('[Tracker] Firebase not configured, using localStorage for tags/notes');
+    const banner = document.getElementById('setupBanner');
+    if (banner) banner.style.display = 'block';
+    return;
+  }
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    firebaseReady = true;
+    console.log('[Tracker] Firebase initialized ✓');
+    listenToAnnotations();
+  } catch(e) {
+    console.error('[Tracker] Firebase init failed:', e);
+    const banner = document.getElementById('setupBanner');
+    if (banner) banner.style.display = 'block';
+  }
 }
-function saveTags(id, tags) {
-  localStorage.setItem('tags_' + id, JSON.stringify(tags));
+
+function listenToAnnotations() {
+  if (!firebaseReady || !db) return;
+  db.collection('reg_annotations').onSnapshot(snapshot => {
+    sharedAnnotations = {};
+    snapshot.forEach(doc => {
+      sharedAnnotations[doc.id] = doc.data();
+    });
+    renderTimeline(); // refresh cards with new shared data
+  }, err => {
+    console.error('[Tracker] Firestore listener error:', err);
+  });
 }
-function addTag(id, tag) {
-  const tags = getTags(id);
-  if (!tags.includes(tag)) { tags.push(tag); saveTags(id, tags); }
+
+// ==================== NICKNAME ====================
+function getNickname() {
+  return localStorage.getItem('reg_nickname') || '';
 }
-function removeTag(id, tag) {
-  const tags = getTags(id).filter(t => t !== tag);
-  saveTags(id, tags);
+function setNickname(name) {
+  localStorage.setItem('reg_nickname', name.trim());
+  updateNicknameBar();
 }
-function getComment(id) {
-  return localStorage.getItem('comment_' + id) || '';
+function updateNicknameBar() {
+  const bar = document.getElementById('nicknameBar');
+  if (!bar) return;
+  const name = getNickname();
+  document.getElementById('nicknameDisplay').textContent = name || 'Anonymous';
+  document.getElementById('nicknameInput').value = name;
 }
-function saveComment(id, text) {
-  localStorage.setItem('comment_' + id, text);
+function startEditNickname() {
+  const bar = document.getElementById('nicknameBar');
+  bar.classList.add('editing');
+  const input = document.getElementById('nicknameInput');
+  input.value = getNickname();
+  input.focus();
+  input.select();
+}
+function finishEditNickname() {
+  const bar = document.getElementById('nicknameBar');
+  bar.classList.remove('editing');
+  const input = document.getElementById('nicknameInput');
+  const name = input.value.trim();
+  if (name) setNickname(name);
+  else if (!getNickname()) setNickname('Anonymous');
+}
+
+// ==================== TAGS & NOTES (Shared via Firebase, fallback to localStorage) ====================
+function getSharedTags(id) {
+  if (firebaseReady && sharedAnnotations[id] && sharedAnnotations[id].tags) {
+    return sharedAnnotations[id].tags;
+  }
+  // Fallback: localStorage (legacy format: string array)
+  try {
+    const raw = JSON.parse(localStorage.getItem('tags_' + id) || '[]');
+    return raw.map(t => typeof t === 'string' ? {text: t, author: 'Me', createdAt: ''} : t);
+  } catch { return []; }
+}
+
+function getSharedNotes(id) {
+  if (firebaseReady && sharedAnnotations[id] && sharedAnnotations[id].notes) {
+    return sharedAnnotations[id].notes;
+  }
+  // Fallback: localStorage single comment
+  const local = localStorage.getItem('comment_' + id) || '';
+  return local ? [{text: local, author: 'Me', createdAt: ''}] : [];
+}
+
+function addSharedTag(id, tag) {
+  const author = getNickname() || 'Anonymous';
+  if (firebaseReady && db) {
+    const docRef = db.collection('reg_annotations').doc(id);
+    db.runTransaction(async transaction => {
+      const doc = await transaction.get(docRef);
+      const data = doc.exists ? doc.data() : {tags: [], notes: []};
+      if (!data.tags.some(t => t.text === tag)) {
+        data.tags.push({text: tag, author: author, createdAt: new Date().toISOString()});
+        transaction.set(docRef, data);
+      }
+    }).catch(err => console.error('Add tag failed:', err));
+  } else {
+    const tags = getSharedTags(id);
+    if (!tags.some(t => t.text === tag)) {
+      tags.push({text: tag, author: author, createdAt: new Date().toISOString()});
+      localStorage.setItem('tags_' + id, JSON.stringify(tags));
+      renderTimeline();
+    }
+  }
+}
+
+function removeSharedTag(id, tagText, author) {
+  if (firebaseReady && db) {
+    const docRef = db.collection('reg_annotations').doc(id);
+    db.runTransaction(async transaction => {
+      const doc = await transaction.get(docRef);
+      if (doc.exists) {
+        const data = doc.data();
+        data.tags = data.tags.filter(t => !(t.text === tagText && (!author || t.author === author)));
+        transaction.set(docRef, data);
+      }
+    }).catch(err => console.error('Remove tag failed:', err));
+  } else {
+    const tags = getSharedTags(id).filter(t => !(t.text === tagText && (!author || t.author === author)));
+    localStorage.setItem('tags_' + id, JSON.stringify(tags));
+    renderTimeline();
+  }
+}
+
+function addSharedNote(id, note) {
+  const author = getNickname() || 'Anonymous';
+  if (firebaseReady && db) {
+    const docRef = db.collection('reg_annotations').doc(id);
+    db.runTransaction(async transaction => {
+      const doc = await transaction.get(docRef);
+      const data = doc.exists ? doc.data() : {tags: [], notes: []};
+      data.notes.push({text: note, author: author, createdAt: new Date().toISOString()});
+      transaction.set(docRef, data);
+    }).catch(err => console.error('Add note failed:', err));
+  } else {
+    const notes = getSharedNotes(id);
+    notes.push({text: note, author: author, createdAt: new Date().toISOString()});
+    localStorage.setItem('notes_' + id, JSON.stringify(notes));
+    renderTimeline();
+  }
+}
+
+function deleteSharedNote(id, noteIndex) {
+  if (firebaseReady && db) {
+    const docRef = db.collection('reg_annotations').doc(id);
+    db.runTransaction(async transaction => {
+      const doc = await transaction.get(docRef);
+      if (doc.exists) {
+        const data = doc.data();
+        data.notes.splice(noteIndex, 1);
+        transaction.set(docRef, data);
+      }
+    }).catch(err => console.error('Delete note failed:', err));
+  } else {
+    const notes = getSharedNotes(id);
+    notes.splice(noteIndex, 1);
+    localStorage.setItem('notes_' + id, JSON.stringify(notes));
+    renderTimeline();
+  }
 }
 
 // ==================== STATE ====================
@@ -2104,15 +2446,45 @@ function renderRegCard(r) {
     relHtml += '</div>';
   }
 
-  // Tags
-  const tags = getTags(r.id);
+  // Shared Tags
+  const tags = getSharedTags(r.id);
   let tagsHtml = '';
   if (tags.length > 0) {
     tagsHtml = '<div class="reg-tags-row">';
     tags.forEach(t => {
-      tagsHtml += `<span class="tag-chip">${t}<span class="tag-remove" onclick="event.stopPropagation();removeTagAndRender('${r.id}','${t.replace(/'/g,"\\'")}')">×</span></span>`;
+      const tagText = typeof t === 'string' ? t : t.text;
+      const tagAuthor = typeof t === 'string' ? '' : t.author;
+      tagsHtml += `<span class="shared-tag-chip">${tagText}${tagAuthor ? `<span class="tag-author">@${tagAuthor}</span>` : ''}<span class="tag-remove" onclick="event.stopPropagation();removeSharedTagAndRender('${r.id}','${tagText.replace(/'/g,"\\'")}','${(tagAuthor||'').replace(/'/g,"\\'")}')">×</span></span>`;
     });
     tagsHtml += '</div>';
+  }
+
+  // Shared Notes (expandable)
+  const notes = getSharedNotes(r.id);
+  const noteCount = notes.length;
+  let notesHtml = '';
+  if (noteCount > 0 || firebaseReady || FIREBASE_CONFIG.apiKey) {
+    let notesListHtml = '';
+    notes.forEach((n, idx) => {
+      const noteText = typeof n === 'string' ? n : n.text;
+      const noteAuthor = typeof n === 'string' ? '' : n.author;
+      const noteTime = (typeof n === 'object' && n.createdAt) ? new Date(n.createdAt).toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+      const canDelete = !firebaseReady || noteAuthor === getNickname();
+      notesListHtml += `<div class="shared-note-item"><span class="note-author">${noteAuthor || 'Anonymous'}</span>${escHtml(noteText)}${noteTime ? `<span class="note-time">${noteTime}</span>` : ''}${canDelete ? `<span class="note-delete" onclick="event.stopPropagation();deleteSharedNoteAndRender('${r.id}',${idx})">✕</span>` : ''}</div>`;
+    });
+    notesHtml = `
+      <div class="card-notes-toggle">
+        <div class="card-notes-header" onclick="event.stopPropagation();toggleCardNotes('${r.id}')">
+          <span class="arrow" id="arrow-${r.id}">▶</span> 💬 ${noteCount} note${noteCount !== 1 ? 's' : ''}
+        </div>
+        <div class="card-notes-body" id="notes-body-${r.id}">
+          ${notesListHtml}
+          <div class="card-quick-input" onclick="event.stopPropagation()">
+            <input type="text" id="note-input-${r.id}" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){event.stopPropagation();addNoteFromCard('${r.id}');}">
+            <button onclick="event.stopPropagation();addNoteFromCard('${r.id}')">Send</button>
+          </div>
+        </div>
+      </div>`;
   }
 
   return `
@@ -2133,6 +2505,7 @@ function renderRegCard(r) {
       </div>
       <div class="reg-desc">${r.description}</div>
       ${tagsHtml}
+      ${notesHtml}
       ${relHtml}
     </div>`;
 }
@@ -2208,15 +2581,25 @@ function openModal(id) {
     relHtml += '</div>';
   }
 
-  // Tags
-  const tags = getTags(r.id);
+  // Shared Tags
+  const tags = getSharedTags(r.id);
   let tagsHtml = '';
   tags.forEach(t => {
-    tagsHtml += `<span class="tag-chip-modal">${t}<span class="tag-remove" onclick="removeTagFromModal('${r.id}','${t.replace(/'/g,"\\'")}')">×</span></span>`;
+    const tagText = typeof t === 'string' ? t : t.text;
+    const tagAuthor = typeof t === 'string' ? '' : t.author;
+    tagsHtml += `<span class="tag-chip-modal">${tagText}${tagAuthor ? `<span style="font-weight:400;color:var(--text-muted);font-size:9px;margin-left:2px;">@${tagAuthor}</span>` : ''}<span class="tag-remove" onclick="removeTagFromModal('${r.id}','${tagText.replace(/'/g,"\\'")}','${(tagAuthor||'').replace(/'/g,"\\'")}')">×</span></span>`;
   });
 
-  // Comment
-  const comment = getComment(r.id);
+  // Shared Notes
+  const notes = getSharedNotes(r.id);
+  let notesListHtml = '';
+  notes.forEach((n, idx) => {
+    const noteText = typeof n === 'string' ? n : n.text;
+    const noteAuthor = typeof n === 'string' ? '' : n.author;
+    const noteTime = (typeof n === 'object' && n.createdAt) ? new Date(n.createdAt).toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+    const canDelete = !firebaseReady || noteAuthor === getNickname();
+    notesListHtml += `<div class="shared-note-item"><span class="note-author">${noteAuthor || 'Anonymous'}</span>${escHtml(noteText)}${noteTime ? `<span class="note-time">${noteTime}</span>` : ''}${canDelete ? `<span class="note-delete" onclick="deleteNoteFromModal('${r.id}',${idx})">✕</span>` : ''}</div>`;
+  });
 
   document.getElementById('modalBody').innerHTML = `
     <div class="modal-title">${r.title}</div>
@@ -2231,7 +2614,7 @@ function openModal(id) {
     ${r.url ? `<div class="modal-field"><div class="field-label">Original Text / 原文链接</div><div class="field-value"><a href="${r.url}" target="_blank" style="color:var(--accent-blue);">View Original →</a></div></div>` : ''}
     ${relHtml}
     <div class="tags-section">
-      <h4>🏷️ Tags / 标签</h4>
+      <h4>🏷️ Tags / 标签 <span style="font-weight:400;color:var(--text-muted);font-size:10px;">(shared)</span></h4>
       <div class="tags-container" id="modalTagsContainer">${tagsHtml}</div>
       <div class="tag-input-row">
         <input type="text" class="tag-input" id="tagInput" placeholder="Add tag..." onkeydown="if(event.key==='Enter')addTagFromModal('${r.id}')">
@@ -2239,10 +2622,12 @@ function openModal(id) {
       </div>
     </div>
     <div class="comment-section">
-      <h4 style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">📝 Internal Notes / 内部备注</h4>
-      <textarea class="comment-textarea" id="commentTextarea" placeholder="Add internal notes or comments...">${comment}</textarea>
-      <button class="comment-save-btn" onclick="saveCommentFromModal('${r.id}')">💾 Save</button>
-      ${comment ? `<div class="saved-comment">${comment}</div>` : ''}
+      <h4 style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">📝 Team Notes / 团队备注 <span style="font-weight:400;color:var(--text-muted);font-size:10px;">(shared)</span></h4>
+      ${notesListHtml}
+      <div class="card-quick-input" style="margin-top:6px;">
+        <input type="text" id="modalNoteInput" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){addNoteFromModal('${r.id}');}">
+        <button onclick="addNoteFromModal('${r.id}')">Send</button>
+      </div>
     </div>`;
 
   document.getElementById('modal').classList.add('visible');
@@ -2251,6 +2636,63 @@ function openModal(id) {
 function closeModal() { document.getElementById('modal').classList.remove('visible'); }
 document.getElementById('modal').addEventListener('click', (e) => { if (e.target === document.getElementById('modal')) closeModal(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+// ==================== CARD NOTE INTERACTIONS ====================
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function toggleCardNotes(id) {
+  const body = document.getElementById('notes-body-' + id);
+  const arrow = document.getElementById('arrow-' + id);
+  if (!body) return;
+  const isExpanded = body.classList.contains('expanded');
+  body.classList.toggle('expanded');
+  if (arrow) arrow.classList.toggle('open', !isExpanded);
+}
+
+function addNoteFromCard(id) {
+  const input = document.getElementById('note-input-' + id);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  if (!getNickname()) {
+    const name = prompt('Please enter your name/nickname first:', '');
+    if (name && name.trim()) setNickname(name.trim());
+    else { setNickname('Anonymous'); }
+  }
+  addSharedNote(id, text);
+  input.value = '';
+  // For Firebase, the real-time listener will auto-refresh; for localStorage, we need manual refresh
+  if (!firebaseReady) renderTimeline();
+}
+
+function addTagFromCard(id) {
+  const input = document.getElementById('tag-input-' + id);
+  if (!input) return;
+  const tag = input.value.trim();
+  if (!tag) return;
+  if (!getNickname()) {
+    const name = prompt('Please enter your name/nickname first:', '');
+    if (name && name.trim()) setNickname(name.trim());
+    else { setNickname('Anonymous'); }
+  }
+  addSharedTag(id, tag);
+  input.value = '';
+  if (!firebaseReady) renderTimeline();
+}
+
+function removeSharedTagAndRender(id, tagText, author) {
+  removeSharedTag(id, tagText, author);
+  if (!firebaseReady) renderTimeline();
+}
+
+function deleteSharedNoteAndRender(id, noteIndex) {
+  deleteSharedNote(id, noteIndex);
+  if (!firebaseReady) renderTimeline();
+}
 
 function highlightRelated(numberStr) {
   const cards = document.querySelectorAll('.reg-card');
@@ -2271,28 +2713,41 @@ function addTagFromModal(id) {
   const input = document.getElementById('tagInput');
   const tag = input.value.trim();
   if (tag) {
-    addTag(id, tag);
+    if (!getNickname()) {
+      const name = prompt('Please enter your name/nickname first:', '');
+      if (name && name.trim()) setNickname(name.trim());
+      else setNickname('Anonymous');
+    }
+    addSharedTag(id, tag);
     input.value = '';
-    openModal(id); // refresh modal
-    renderTimeline(); // refresh cards
+    if (!firebaseReady) { openModal(id); renderTimeline(); }
   }
 }
 
-function removeTagFromModal(id, tag) {
-  removeTag(id, tag);
-  openModal(id); // refresh modal
-  renderTimeline(); // refresh cards
+function removeTagFromModal(id, tagText, author) {
+  removeSharedTag(id, tagText, author);
+  if (!firebaseReady) { openModal(id); renderTimeline(); }
 }
 
-function removeTagAndRender(id, tag) {
-  removeTag(id, tag);
-  renderTimeline();
+function addNoteFromModal(id) {
+  const input = document.getElementById('modalNoteInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (text) {
+    if (!getNickname()) {
+      const name = prompt('Please enter your name/nickname first:', '');
+      if (name && name.trim()) setNickname(name.trim());
+      else setNickname('Anonymous');
+    }
+    addSharedNote(id, text);
+    input.value = '';
+    if (!firebaseReady) { openModal(id); renderTimeline(); }
+  }
 }
 
-function saveCommentFromModal(id) {
-  const text = document.getElementById('commentTextarea').value;
-  saveComment(id, text);
-  openModal(id); // refresh
+function deleteNoteFromModal(id, noteIndex) {
+  deleteSharedNote(id, noteIndex);
+  if (!firebaseReady) { openModal(id); renderTimeline(); }
 }
 
 // ==================== ANIMATION ====================
@@ -2402,6 +2857,22 @@ function init() {
   setupFilters();
   renderAll();
 
+  // Initialize nickname
+  updateNicknameBar();
+  if (!getNickname()) {
+    // Prompt for nickname after a short delay
+    setTimeout(() => {
+      const name = prompt('👋 Welcome! Please enter your name/nickname for team collaboration:', '');
+      if (name && name.trim()) setNickname(name.trim());
+      else setNickname('Anonymous');
+    }, 1000);
+  }
+
+  // Initialize Firebase (if configured)
+  if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+    initFirebase();
+  }
+
   // Initial fetch
   fetchLatestRegulations();
 
@@ -2410,6 +2881,16 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- Firebase SDK (loaded after app script so app works even if CDN is blocked) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// Initialize Firebase after SDK loads
+if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.apiKey) {
+  initFirebase();
+}
 </script>
 </body>
 </html>
