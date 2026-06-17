@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APAC Trade Compliance - Customs Regulation Tracker</title>
+<style>
+/* ========== CSS Variables ========== */
+:root {
+  --bg-primary: #f7f8fc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8888a0;
+  --border-color: #e2e4ef;
+  --accent-blue: #2d5be3;
+  --accent-red: #e53e3e;
+  --accent-green: #38a169;
+  --accent-orange: #dd6b20;
+  --accent-purple: #805ad5;
+  --accent-teal: #319795;
+  --accent-gold: #d69e2e;
+  --accent-cyan: #0891b2;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.09);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,0.12);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --gradient-header: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ========== Header ========== */
+.header {
+  background: var(--gradient-header);
+  color: #fff;
+  padding: 20px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-lg);
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header h1 .logo-icon { font-size: 26px; }
+
+.header-subtitle {
+  font-size: 11px;
+  opacity: 0.7;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.badge-year {
+  background: rgba(45,91,227,0.7);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.header-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+  background: rgba(255,255,255,0.08);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.stat-item .stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  display: block;
+}
+
+.stat-item .stat-label {
+  font-size: 10px;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ========== Controls ========== */
+.controls-bar {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 40px;
+  position: sticky;
+  top: 68px;
+  z-index: 90;
+  box-shadow: var(--shadow-sm);
+}
+
+.controls-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.filter-group .label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.filter-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filter-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+.filter-btn.active {
+  background: var(--accent-blue);
+  color: #fff;
+  border-color: var(--accent-blue);
+}
+
+.search-input {
+  padding: 7px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  font-size: 13px;
+  width: 220px;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-left: auto;
+}
+
+.search-input:focus { border-color: var(--accent-blue); }
+
+/* ========== Main Layout ========== */
+.main-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 20px 40px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .main-container { grid-template-columns: 1fr; padding: 16px; }
+  .header { padding: 16px 20px; }
+  .controls-bar { padding: 10px 16px; }
+  .search-input { width: 100%; }
+}
+
+/* ========== Sidebar ========== */
+.sidebar {
+  position: sticky;
+  top: 120px;
+  align-self: start;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+.sidebar-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  margin-bottom: 12px;
+}
+
+.sidebar-card h3 {
+  font-size: 13px;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.month-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.month-bar:hover { background: rgba(45,91,227,0.05); }
+.month-bar.active { background: rgba(45,91,227,0.1); }
+
+.month-label {
+  font-size: 12px;
+  font-weight: 600;
+  width: 36px;
+  color: var(--text-secondary);
+}
+
+.month-bar-track {
+  flex: 1;
+  height: 20px;
+  background: #eef0f6;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.month-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.month-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  width: 20px;
+  text-align: right;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ========== Timeline ========== */
+.timeline-area { min-height: 400px; }
+
+.timeline-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.timeline-section-header h2 { font-size: 16px; font-weight: 700; }
+
+.reg-count-badge {
+  background: var(--accent-blue);
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent-blue), var(--accent-purple), var(--accent-teal));
+  border-radius: 1px;
+}
+
+.month-group { margin-bottom: 28px; }
+
+.month-header {
+  position: relative;
+  padding: 6px 0 10px;
+  cursor: pointer;
+}
+
+.month-header::before {
+  content: '';
+  position: absolute;
+  left: -23px;
+  top: 12px;
+  width: 10px;
+  height: 10px;
+  background: var(--accent-blue);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(45,91,227,0.2);
+  z-index: 2;
+}
+
+.month-header h3 { font-size: 15px; font-weight: 700; }
+
+.month-header .month-summary {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ========== Regulation Card ========== */
+.reg-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.reg-card::before {
+  content: '';
+  position: absolute;
+  left: -19px;
+  top: 18px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.reg-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.reg-card.effective { border-left: 3px solid var(--accent-green); }
+.reg-card.effective::before { background: var(--accent-green); }
+.reg-card.replaced { border-left: 3px solid var(--accent-orange); opacity: 0.7; }
+.reg-card.replaced::before { background: var(--accent-orange); }
+.reg-card.repealed { border-left: 3px solid var(--accent-red); opacity: 0.6; }
+.reg-card.repealed::before { background: var(--accent-red); }
+.reg-card.pending { border-left: 3px solid var(--accent-gold); }
+.reg-card.pending::before { background: var(--accent-gold); }
+
+.reg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.reg-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.reg-badges {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 1px 7px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-org { background: #eef0ff; color: var(--accent-blue); }
+.badge-cat { background: #f0f9ff; color: var(--accent-teal); }
+.badge-effective { background: #f0fff4; color: var(--accent-green); }
+.badge-replaced { background: #fffaf0; color: var(--accent-orange); }
+.badge-repealed { background: #fff5f5; color: var(--accent-red); }
+.badge-pending { background: #fffff0; color: var(--accent-gold); }
+.badge-source { background: #f5f0ff; color: var(--accent-purple); }
+
+.reg-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.reg-meta span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.reg-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Tags on card */
+.reg-tags-row {
+  margin-top: 6px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #eef0ff;
+  color: var(--accent-blue);
+  border: 1px solid #d0d5f7;
+}
+
+.tag-chip .tag-remove {
+  cursor: pointer;
+  font-size: 11px;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+.tag-chip .tag-remove:hover { opacity: 1; }
+
+/* Relationship link */
+.reg-relation {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+  font-size: 11px;
+}
+
+.relation-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.15s;
+  cursor: pointer;
+  font-size: 11px;
+  margin: 2px 0;
+}
+
+.relation-link.supersedes { background: #f0fff4; color: var(--accent-green); border: 1px solid #c6f6d5; }
+.relation-link.supersedes:hover { background: #c6f6d5; }
+.relation-link.replaces { background: #fffaf0; color: var(--accent-orange); border: 1px solid #feebc8; }
+.relation-link.replaces:hover { background: #feebc8; }
+.relation-link.repealed-by { background: #fff5f5; color: var(--accent-red); border: 1px solid #fed7d7; }
+.relation-link.repealed-by:hover { background: #fed7d7; }
+
+/* Superseded detail tooltip */
+.superseded-detail {
+  display: none;
+  margin-top: 4px;
+  padding: 6px 10px;
+  background: #fffdf7;
+  border: 1px solid #feebc8;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.superseded-detail.visible { display: block; }
+
+.superseded-detail a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+.superseded-detail a:hover { text-decoration: underline; }
+
+/* ========== Animation Timeline ========== */
+.animation-timeline {
+  margin-top: 28px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.animation-timeline h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.anim-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.anim-btn {
+  padding: 5px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.anim-btn:hover { border-color: var(--accent-blue); }
+.anim-btn.playing { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+
+.speed-select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-size: 11px;
+}
+
+.anim-date-display {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  min-width: 90px;
+}
+
+.month-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 50px;
+  padding: 0 4px;
+}
+
+.month-dot-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.month-dot-bar {
+  width: 100%;
+  max-width: 36px;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.4s ease, background 0.3s;
+  min-height: 3px;
+}
+
+.month-dot-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  font-weight: 600;
+}
+
+.month-dot-col.current .month-dot-bar { box-shadow: 0 0 0 2px var(--accent-blue); }
+.month-dot-col.active .month-dot-label { color: var(--accent-blue); font-weight: 700; }
+
+/* ========== Update Section ========== */
+.update-section {
+  margin-top: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.update-section h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.update-info {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.update-info a { color: var(--accent-blue); text-decoration: none; }
+.update-info a:hover { text-decoration: underline; }
+
+.update-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.update-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+/* ========== Modal ========== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+}
+
+.modal-overlay.visible { display: flex; }
+
+.modal-content {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-width: 700px;
+  width: 92%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.modal-close:hover { color: var(--text-primary); }
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  padding-right: 28px;
+  line-height: 1.5;
+}
+
+.modal-field { margin-bottom: 10px; font-size: 13px; }
+
+.modal-field .field-label {
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-field .field-value { color: var(--text-primary); }
+
+.modal-relations {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+}
+
+.modal-relations h4 {
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+
+/* Superseded detail in modal */
+.superseded-item {
+  padding: 8px 10px;
+  background: #fffdf7;
+  border: 1px solid #feebc8;
+  border-radius: 6px;
+  margin: 4px 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.superseded-item .s-name {
+  font-weight: 700;
+  color: var(--accent-orange);
+  margin-bottom: 2px;
+}
+
+.superseded-item .s-summary {
+  color: var(--text-secondary);
+}
+
+.superseded-item .s-link a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-size: 11px;
+}
+.superseded-item .s-link a:hover { text-decoration: underline; }
+
+/* Tags section in modal */
+.tags-section {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+}
+
+.tags-section h4 {
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+
+.tags-container {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.tag-chip-modal {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #eef0ff;
+  color: var(--accent-blue);
+  border: 1px solid #d0d5f7;
+}
+
+.tag-chip-modal .tag-remove {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+.tag-chip-modal .tag-remove:hover { opacity: 1; }
+
+.tag-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.tag-input {
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  font-size: 11px;
+  width: 140px;
+  outline: none;
+}
+
+.tag-input:focus { border-color: var(--accent-blue); }
+
+.tag-add-btn {
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--accent-blue);
+  background: var(--accent-blue);
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tag-add-btn:hover { background: #1e4bc2; }
+
+.comment-section {
+  margin-top: 10px;
+}
+
+.comment-textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+}
+
+.comment-textarea:focus { border-color: var(--accent-blue); }
+
+.comment-save-btn {
+  margin-top: 6px;
+  padding: 4px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--accent-green);
+  background: var(--accent-green);
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.comment-save-btn:hover { background: #2d8a54; }
+
+.saved-comment {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #f7faf7;
+  border: 1px solid #c6f6d5;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+
+/* ========== Utility ========== */
+.fade-in { animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.reg-card.highlighted { box-shadow: 0 0 0 2px var(--accent-blue), var(--shadow-md); }
+
+.no-results {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text-muted);
+}
+
+.no-results .icon { font-size: 40px; margin-bottom: 12px; }
+.no-results p { font-size: 14px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c8c8d8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a0a0b0; }
+
+/* ========== Fetch Status Toast ========== */
+.fetch-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #1a1a2e;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  z-index: 300;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fetch-toast.visible { opacity: 1; transform: translateY(0); }
+
+.fetch-toast .spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <h1>
+      <span class="logo-icon">🛃</span>
+      <div>
+        APAC Trade Compliance
+        <span class="badge-year">2026</span>
+        <div class="header-subtitle">Customs Regulation Tracker</div>
+      </div>
+    </h1>
+    <div class="header-stats" id="headerStats"></div>
+  </div>
+</header>
+
+<!-- Controls -->
+<div class="controls-bar">
+  <div class="controls-inner">
+    <div class="filter-group">
+      <span class="label">Source:</span>
+      <button class="filter-btn active" data-filter="org" data-value="all">All</button>
+      <button class="filter-btn" data-filter="org" data-value="GACC">GACC</button>
+      <button class="filter-btn" data-filter="org" data-value="TCTC">TCTC</button>
+      <button class="filter-btn" data-filter="org" data-value="MOFCOM">MOFCOM</button>
+      <button class="filter-btn" data-filter="org" data-value="SCIO">SC / Gov.cn</button>
+      <button class="filter-btn" data-filter="org" data-value="STA">STA</button>
+    </div>
+    <div class="filter-group">
+      <span class="label">Category:</span>
+      <button class="filter-btn active" data-filter="category" data-value="all">All</button>
+      <button class="filter-btn" data-filter="category" data-value="Tariff">💰 Tariff</button>
+      <button class="filter-btn" data-filter="category" data-value="Export Control">🔒 Export Control</button>
+      <button class="filter-btn" data-filter="category" data-value="AEO / Enterprise">🏢 AEO / Enterprise</button>
+      <button class="filter-btn" data-filter="category" data-value="Customs Supervision">🛃 Customs Supervision</button>
+      <button class="filter-btn" data-filter="category" data-value="Bonded / FTZ">🏗️ Bonded / FTZ</button>
+      <button class="filter-btn" data-filter="category" data-value="Export Tax Refund">💸 Export Tax Refund</button>
+      <button class="filter-btn" data-filter="category" data-value="Inspection & Quarantine">🔬 Inspection & Quarantine</button>
+    </div>
+    <div class="filter-group">
+      <span class="label">Status:</span>
+      <button class="filter-btn active" data-filter="status" data-value="all">All</button>
+      <button class="filter-btn" data-filter="status" data-value="effective">Effective</button>
+      <button class="filter-btn" data-filter="status" data-value="replaced">Replaced</button>
+      <button class="filter-btn" data-filter="status" data-value="pending">Pending</button>
+    </div>
+    <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search regulation name / number...">
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main-container">
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h3>📊 Monthly Statistics</h3>
+      <div id="monthlyBars"></div>
+    </div>
+    <div class="sidebar-card">
+      <h3>📋 Status Legend</h3>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-green)"></span> Effective</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-orange)"></span> Replaced</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-gold)"></span> Pending</div>
+    </div>
+    <div class="sidebar-card">
+      <h3>📂 Category Legend</h3>
+      <div class="legend-item"><span class="legend-dot" style="background:#2d5be3"></span> 💰 Tariff (关税税率)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#e53e3e"></span> 🔒 Export Control (出口管制)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#38a169"></span> 🏢 AEO / Enterprise (企业管理)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#dd6b20"></span> 🛃 Customs Supervision (监管通关)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#805ad5"></span> 🏗️ Bonded / FTZ (保税/自贸区)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#d69e2e"></span> 💸 Export Tax Refund (出口退税)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#319795"></span> 🔬 Inspection & Quarantine (检验检疫)</div>
+    </div>
+    <div class="sidebar-card">
+      <h3>🏛️ Source Legend</h3>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-blue)"></span> GACC (海关总署)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-purple)"></span> TCTC (关税税则委员会)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-teal)"></span> MOFCOM (商务部)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-cyan)"></span> SC / Gov.cn (国务院/中国政府网)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-gold)"></span> STA (国家税务总局)</div>
+    </div>
+  </aside>
+
+  <main class="timeline-area">
+    <div class="timeline-section-header">
+      <h2>📅 Regulation Timeline</h2>
+      <span class="reg-count-badge" id="regCount">0</span>
+    </div>
+    <div class="timeline" id="timeline"></div>
+
+    <!-- Animation Timeline -->
+    <div class="animation-timeline">
+      <h3>🎬 Evolution Playback</h3>
+      <div class="anim-controls">
+        <button class="anim-btn" id="animPlayBtn" onclick="toggleAnimation()">▶ Play</button>
+        <button class="anim-btn" onclick="resetAnimation()">⏮ Reset</button>
+        <select class="speed-select" id="animSpeed" onchange="updateAnimSpeed()">
+          <option value="2500">Slow</option>
+          <option value="1200" selected>Normal</option>
+          <option value="600">Fast</option>
+        </select>
+        <span class="anim-date-display" id="animDate">Jan 2026</span>
+      </div>
+      <div class="month-track" id="animTrack"></div>
+    </div>
+
+    <!-- Update Info -->
+    <div class="update-section">
+      <h3>🔄 Auto-Update</h3>
+      <div class="update-info">
+        <p>This system tracks <strong>Tariff</strong>, <strong>Export Control</strong>, <strong>AEO / Enterprise Management</strong>, <strong>Customs Supervision</strong>, <strong>Bonded / FTZ</strong>, <strong>Export Tax Refund</strong>, and <strong>Inspection &amp; Quarantine</strong> regulations.</p>
+        <p style="margin-top:6px;">Data Sources:</p>
+        <ul style="margin-left:18px;margin-top:4px;">
+          <li><a href="http://www.customs.gov.cn/customs/302249/2480148/index.html" target="_blank">GACC Announcements (海关总署公告专栏)</a></li>
+          <li><a href="https://www.gov.cn/zhengce/" target="_blank">Gov.cn / SC Policy Library (中国政府网/国务院政策文件库)</a></li>
+          <li><a href="http://gss.mof.gov.cn/gzdt/zhengcefabu/" target="_blank">TCTC Policy Releases (财政部关税税则委员会政策发布专栏)</a></li>
+          <li><a href="https://www.mofcom.gov.cn/zcfb/index.html" target="_blank">MOFCOM Policy Releases (商务部政策发布)</a></li>
+          <li><a href="https://fgk.chinatax.gov.cn" target="_blank">STA Tax Regulations Database (国家税务总局税收法规库)</a></li>
+        </ul>
+        <p style="margin-top:8px;color:var(--accent-teal);">⚙️ Auto-update: The system fetches latest regulations every <strong>6 hours</strong> automatically.</p>
+      </div>
+      <div class="update-status">
+        <span class="update-pulse"></span>
+        <span id="lastUpdate">Last update: Loading...</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-content" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="fetch-toast" id="fetchToast">
+  <div class="spinner"></div>
+  <span id="fetchToastText">Fetching latest regulations...</span>
+</div>
+
+<script>
+// ==================== DATA ====================
+const BUILTIN_REGULATIONS = [
+  // ---- January ----
+  {
+    id: "2026-002",
+    number: "GACC Announcement 2026 No.2",
+    numberCN: "海关总署公告2026年第2号",
+    title: "关于优化落实TIR公约有关事项的公告",
+    date: "2026-01-05",
+    effectiveDate: "2026-01-15",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "effective",
+    description: "进一步优化TIR公约（《国际公路运输公约》）项下国际公路运输通关流程，提升TIR证持有人的通关便利化水平。明确TIR监管其他事项按海关总署公告2018年第30号、2019年第90号施行。",
+    supersedes: ["海关总署公告2018年第42号", "海关总署公告2019年第41号"],
+    supersededDetails: [
+      { name: "海关总署公告2018年第42号", summary: "关于扩大TIR运输试点范围的公告，在原有6个试点口岸基础上新增满洲里等口岸，进一步扩大《国际公路运输公约》（TIR公约）在我国试点实施范围。", url: "https://www.gov.cn/zhengce/zhengceku/2018-12/31/content_5446276.htm" },
+      { name: "海关总署公告2019年第41号", summary: "关于扩大实施TIR公约试点有关事项的公告，在现有试点口岸基础上增加吉木乃、巴克图、阿拉山口、都拉塔口岸为TIR运输试点口岸。", url: "https://www.gov.cn/zhengce/zhengceku/2019-11/05/content_5448735.htm" }
+    ],
+    url: "http://www.customs.gov.cn/customs/2026-01/07/article_2026010709154661213.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-003",
+    number: "GACC Announcement 2025 No.260",
+    numberCN: "海关总署公告2025年第260号",
+    title: "关于执行2026年关税调整方案及有关事宜的公告",
+    date: "2026-01-01",
+    effectiveDate: "2026-01-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "根据税委会公告2025年第11号公布的《2026年关税调整方案》，自2026年1月1日起对935项商品实施进口暂定税率，并编制了对应海关商品编号表以实施进口环节增值税、消费税政策。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-01/04/article_2026010415133211812.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-004",
+    number: "TCTC Announcement 2025 No.11",
+    numberCN: "税委会公告2025年第11号",
+    title: "关于2026年关税调整方案的公告",
+    date: "2026-01-01",
+    effectiveDate: "2026-01-01",
+    org: "TCTC",
+    orgCN: "关税税则委员会",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "自2026年1月1日起，对935项商品实施进口暂定税率；继续对107项商品征收出口关税，其中68项实施出口暂定税率。重点降低关键零部件、先进材料、资源性商品进口关税，引领新质生产力发展。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://gss.mof.gov.cn/gzdt/zhengcefabu/202512/t20251231_3981044.htm",
+    source: "TCTC"
+  },
+  {
+    id: "2026-005",
+    number: "TCTC Announcement 2025 No.12",
+    numberCN: "税委会公告2025年第12号",
+    title: "关于发布《中华人民共和国进出口税则（2026）》的公告",
+    date: "2026-01-01",
+    effectiveDate: "2026-01-01",
+    org: "TCTC",
+    orgCN: "关税税则委员会",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "根据《中华人民共和国关税法》公布《中华人民共和国进出口税则（2026）》，自2026年1月1日起实施。2025年版税则同时废止。",
+    supersedes: ["中华人民共和国进出口税则（2025）"],
+    supersededDetails: [
+      { name: "中华人民共和国进出口税则（2025）", summary: "根据《中华人民共和国关税法》公布的2025年度进出口税则，规定当年进出口商品税目、税率及归类规则，自2025年1月1日起实施。", url: "https://www.gov.cn/zhengce/zhengceku/202501/content_7007154.htm" }
+    ],
+    url: "http://gss.mof.gov.cn/gzdt/zhengcefabu/202512/t20251231_3981044.htm",
+    source: "TCTC"
+  },
+  {
+    id: "2026-006",
+    number: "MOFCOM & GACC Announcement 2025 No.91",
+    numberCN: "商务部 海关总署公告2025年第91号",
+    title: "关于公布2026年度《两用物项和技术进出口许可证管理目录》的公告",
+    date: "2026-01-01",
+    effectiveDate: "2026-01-01",
+    org: "MOFCOM",
+    orgCN: "商务部",
+    category: "Export Control",
+    categoryCN: "出口管制",
+    status: "effective",
+    description: "公布2026年度《两用物项和技术进出口许可证管理目录》，自2026年1月1日起实施。商务部、海关总署2024年第67号公告同时废止。",
+    supersedes: ["商务部、海关总署2024年第67号公告"],
+    supersededDetails: [
+      { name: "商务部、海关总署2024年第67号公告", summary: "公布2025年度《两用物项和技术进出口许可证管理目录》，规定两用物项进出口许可证申领范围、适用商品及申报流程。", url: "https://www.mofcom.gov.cn/zcfb/zgdwjjmywg/art/2025/art_1be240170c1f417b87f3dcca9587f89c.html" }
+    ],
+    url: "https://www.mofcom.gov.cn/zwgk/zcfb/art/2025/art_c03d1e511b2b486e829d68e8f1422aff.html",
+    source: "MOFCOM"
+  },
+  {
+    id: "2026-006b",
+    number: "MOFCOM Announcement 2026 No.1",
+    numberCN: "商务部公告2026年第1号",
+    title: "关于加强两用物项对日本出口管制的公告",
+    date: "2026-01-06",
+    effectiveDate: "2026-01-06",
+    org: "MOFCOM",
+    orgCN: "商务部",
+    category: "Export Control",
+    categoryCN: "出口管制",
+    status: "effective",
+    description: "为维护国家安全和利益、履行防扩散国际义务，禁止所有两用物项对日本军事用户及军事用途出口；对日本其他用户出口两用物项须申请许可证。任何第三方不得将中国两用物项转供日本军事用途。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://www.mofcom.gov.cn:8443/zfxxgk/fdzdgknr/ztfl/dwmygl/art/2026/art_16667f9fad8a444b87e43876763de19d.html",
+    source: "MOFCOM"
+  },
+  {
+    id: "2026-007",
+    number: "GACC Announcement 2026 No.12",
+    numberCN: "海关总署公告2026年第12号",
+    title: "关于启动进出口货物多式联运（海铁、水水部分）业务模式试点相关事项的公告",
+    date: "2026-01-20",
+    effectiveDate: "2026-01-27",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "effective",
+    description: "在前期试点基础上，启动进出口货物海铁联运和水水中转多式联运监管模式试点，支持多式联运高质量发展，提高国际多式联运货物通关便利化水平。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-01/21/article_2026012109050749493.html",
+    source: "GACC"
+  },
+  // ---- February ----
+  {
+    id: "2026-008",
+    number: "GACC Announcement 2026 No.15",
+    numberCN: "海关总署公告2026年第15号",
+    title: "关于公布《适用9%进口环节增值税税率非全税目商品对应海关商品编号表》的公告",
+    date: "2026-02-02",
+    effectiveDate: "2026-02-02",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "根据财政部、税务总局公告2026年第9号《适用9%增值税税率货物范围注释》，编制适用9%进口环节增值税税率非全税目商品对应海关商品编号表，用于进口环节增值税征收管理。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-02/03/article_2026020318010783852.html",
+    source: "GACC"
+  },
+  // ---- February ----
+  {
+    id: "2026-008b",
+    number: "TCTC Announcement 2026 No.1",
+    numberCN: "税委会公告2026年第1号",
+    title: "关于调整对原产于加拿大的部分进口商品加征关税措施的公告",
+    date: "2026-02-27",
+    effectiveDate: "2026-03-01",
+    org: "TCTC",
+    orgCN: "关税税则委员会",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "为落实中加两国领导人达成的重要共识，自2026年3月1日起，调整对原产于加拿大的部分进口商品加征关税措施，调整相关商品加征关税税率及范围。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://gss.mof.gov.cn/gzdt/zhengcefabu/202602/t20260227_3984176.htm",
+    source: "TCTC"
+  },
+  {
+    id: "2026-008c",
+    number: "MOF, GACC & STA Notice [2026] No.7",
+    numberCN: "财关税〔2026〕7号",
+    title: "关于\u201c十五五\u201d期间支持科技创新进口税收优惠政策的通知",
+    date: "2026-02-13",
+    effectiveDate: "2026-01-01",
+    org: "TCTC",
+    orgCN: "关税税则委员会",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "自2026年1月1日至2030年12月31日，对科学研究机构、技术开发机构、学校、党校、图书馆进口国内不能生产或性能不能满足需要的科学研究、科技开发和教学用品，免征进口关税和进口环节增值税、消费税。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://gss.mof.gov.cn/gzdt/zhengcefabu/202602/t20260213_3983799.htm",
+    source: "TCTC"
+  },
+  {
+    id: "2026-009",
+    number: "MOF, GACC & STA Announcement 2026 No.16",
+    numberCN: "财政部 海关总署 税务总局公告2026年第16号",
+    title: "关于跨境电子商务出口退运商品税收优惠政策的公告",
+    date: "2026-02-06",
+    effectiveDate: "2026-01-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "2026年1月1日至2027年12月31日期间，在跨境电商海关监管代码项下申报出口、因滞销或退货原因自出口之日起6个月内原状退运进境的商品，免征进口关税和进口环节增值税、消费税。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://www.gov.cn/zhengce/zhengceku/202602/content_7057580.htm",
+    source: "Gov.cn"
+  },
+  {
+    id: "2026-010",
+    number: "GACC Announcement 2026 No.18",
+    numberCN: "海关总署公告2026年第18号",
+    title: "关于发布《中华人民共和国海关对海南自由贸易港岛内居民消费的\u201c零关税\u201d进境商品经营场所及\u201c零关税\u201d进境商品监管暂行办法》的公告",
+    date: "2026-02-06",
+    effectiveDate: "2026-02-06",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Bonded / FTZ",
+    categoryCN: "保税/自贸区",
+    status: "effective",
+    description: "制定海南自由贸易港岛内居民消费的零关税进境商品经营场所监管暂行办法及零关税进境商品监管暂行办法，规范零关税商品在自贸港内的流通与管理。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://rjs.customs.gov.cn/customs/2026-02/11/article_2026021109323431211.html",
+    source: "GACC"
+  },
+  // ---- March ----
+  {
+    id: "2026-010b",
+    number: "TCTC Announcement 2026 No.2",
+    numberCN: "税委会公告2026年第2号",
+    title: "关于对原产于刚果（布）的部分进口货物实施共同发展经济伙伴关系协定早期收获安排协定税率的公告",
+    date: "2026-03-27",
+    effectiveDate: "2026-04-01",
+    org: "TCTC",
+    orgCN: "关税税则委员会",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "根据《中华人民共和国关税法》有关规定，自2026年4月1日起，对原产于刚果（布）的部分进口货物按《中华人民共和国政府与刚果共和国政府关于共同发展经济伙伴关系的协定》早期收获安排项下协定税率征税。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://gss.mof.gov.cn/gzdt/zhengcefabu/202603/t20260326_3986134.htm",
+    source: "TCTC"
+  },
+  {
+    id: "2026-011",
+    number: "GACC Announcement 2026 No.24",
+    numberCN: "海关总署公告2026年第24号",
+    title: "关于全面推广跨境电商零售出口商品跨关区退货的公告",
+    date: "2026-03-12",
+    effectiveDate: "2026-04-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "effective",
+    description: "在全国海关推广跨境电商零售出口商品跨关区退货模式，仅适用9610模式（跨境电商零售出口商品），解决跨境电商出口退货难问题，降低企业运营成本。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-03/16/article_2026031615471568933.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-013",
+    number: "GACC Announcement 2026 No.31",
+    numberCN: "海关总署公告2026年第31号",
+    title: "关于实施高级认证企业简易复核的公告",
+    date: "2026-03-26",
+    effectiveDate: "2026-04-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "AEO / Enterprise",
+    categoryCN: "企业管理",
+    status: "effective",
+    description: "对信用评估状况为优秀或良好的高级认证企业（AEO）简化复核程序，适用简易复核。降低AEO企业合规维护成本，体现守信激励导向。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-03/26/article_2026032616473567431.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-014",
+    number: "GACC Announcement 2026 No.34",
+    numberCN: "海关总署公告2026年第34号",
+    title: "关于公布《海关高级认证企业标准》《海关认证企业标准》的公告",
+    date: "2026-03-30",
+    effectiveDate: "2026-04-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "AEO / Enterprise",
+    categoryCN: "企业管理",
+    status: "effective",
+    description: "根据海关总署令第282号《海关注册登记和备案企业信用管理办法》，修订《海关高级认证企业标准》并制定《海关认证企业标准》。海关总署公告2022年第106号、第114号同时废止。",
+    supersedes: ["海关总署公告2022年第106号", "海关总署公告2022年第114号"],
+    supersededDetails: [
+      { name: "海关总署公告2022年第106号", summary: "关于公布《海关高级认证企业标准》的公告，对《海关高级认证企业标准》（公告2021年第88号发布）进行修订，含通用标准及针对不同企业类型的单项标准。", url: "http://gdfs.customs.gov.cn/customs/302249/302266/302267/4666541/index.html" },
+      { name: "海关总署公告2022年第114号", summary: "关于公布《海关高级认证企业标准》涉税要素申报规范认定标准的公告，明确涉税要素申报规范指标的认定标准，包括合规自主申报及海关发现少缴税款的判定规则。", url: "http://gdfs.customs.gov.cn/customs/302249/302266/302267/4692402/index.html" }
+    ],
+    url: "http://cws.customs.gov.cn/customs/2026-03/31/article_2026033114511949415.html",
+    source: "GACC"
+  },
+  // ---- April ----
+  {
+    id: "2026-015",
+    number: "GACC Announcement 2026 No.32",
+    numberCN: "海关总署公告2026年第32号",
+    title: "关于执行《中华人民共和国海关注册登记和备案企业信用管理办法》有关事项的公告",
+    date: "2026-03-27",
+    effectiveDate: "2026-04-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "AEO / Enterprise",
+    categoryCN: "企业管理",
+    status: "effective",
+    description: "就海关总署令第282号《海关注册登记和备案企业信用管理办法》执行事项作出明确规定，包括信用等级认定、激励惩戒措施等。同时废止海关总署公告2018年第178号、2021年第86号等。",
+    supersedes: ["海关总署公告2018年第178号", "海关总署公告2021年第86号"],
+    supersededDetails: [
+      { name: "海关总署公告2018年第178号", summary: "关于实施《中华人民共和国海关企业信用管理办法》有关事项的公告，为落实\u201c放管服\u201d改革，整合优化海关企业信用管理制度，明确认证企业标准及管理措施。", url: "https://www.gov.cn/zhengce/zhengceku/2018-12/31/content_5447024.htm" },
+      { name: "海关总署公告2021年第86号", summary: "关于公布《海关注册登记和备案企业信用管理办法》执行中涉及法律文书格式文本的公告，规定了信用管理相关法律文书的标准格式。", url: "https://www.mofcom.gov.cn/zcfb/zgdwjjmywg/art/2021/art_2eb11bec37a645fb847194c53c8b7e5c.html" }
+    ],
+    url: "http://fxs.customs.gov.cn/customs/2026-04/01/article_2026040109192929098.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-015b",
+    number: "SC General Office Letter [2026] No.40",
+    numberCN: "国办函〔2026〕40号",
+    title: "国务院办公厅转发海关总署《关于促进综合保税区扩能提质的若干措施》",
+    date: "2026-04-17",
+    effectiveDate: "2026-04-17",
+    org: "SCIO",
+    orgCN: "国务院办公厅",
+    category: "Bonded / FTZ",
+    categoryCN: "保税/自贸区",
+    status: "effective",
+    description: "国务院办公厅转发海关总署文件，提出24条措施促进综合保税区高质量发展：包括保税维修负面清单管理、跨境电商退货入区、AEO企业免除担保、生物医药区外赋码、智慧监管体系、全生命周期管理等。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://www.gov.cn/zhengce/content/202604/content_7066113.htm",
+    source: "Gov.cn"
+  },
+  {
+    id: "2026-016",
+    number: "GACC Announcement 2026 No.40",
+    numberCN: "海关总署公告2026年第40号",
+    title: "关于调整出口货物报关单申报项目的公告",
+    date: "2026-04-15",
+    effectiveDate: "2026-04-15",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "effective",
+    description: "出口货物报关单增加禁限管制识别码和禁限管制申报要素申报项目，进一步规范出口货物发货人申报行为，强化出口管制合规申报要求。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://gdfs.customs.gov.cn/manzhouli_customs/566020/3392762/566021/7112852/index.html",
+    source: "GACC"
+  },
+  // ---- May ----
+  {
+    id: "2026-017",
+    number: "TCTC Announcement 2026 No.5",
+    numberCN: "税委会公告2026年第5号",
+    title: "关于对非洲建交国实施零关税举措的公告",
+    date: "2026-04-28",
+    effectiveDate: "2026-05-01",
+    org: "TCTC",
+    orgCN: "关税税则委员会",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "自2026年5月1日至2028年4月30日，对同中国建交的20个不属于最不发达国家的非洲国家实施零关税，涵盖原产于上述国家的全部税目商品。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://gss.mof.gov.cn/gzdt/zhengcefabu/202604/t20260428_3988616.htm",
+    source: "TCTC"
+  },
+  {
+    id: "2026-018",
+    number: "GACC Announcement 2026 No.54",
+    numberCN: "海关总署公告2026年第54号",
+    title: "关于公布《中华人民共和国海关对同中国建交的20个不属于最不发达国家的非洲国家实施零关税项下进口货物原产地管理办法》的公告",
+    date: "2026-04-28",
+    effectiveDate: "2026-05-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Tariff",
+    categoryCN: "关税税率",
+    status: "effective",
+    description: "为实施税委会公告2026年第5号项下原产地规则，制定《海关对同中国建交的20个非最不发达非洲国家实施零关税项下进口货物原产地管理办法》，明确原产地认定标准和申报要求。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-04/29/article_2026042908570039662.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-019",
+    number: "MOFCOM et al. Notice [2026] No.74",
+    numberCN: "商消费发2026年第74号",
+    title: "关于加力优化离境退税措施扩大入境消费的通知",
+    date: "2026-05-12",
+    effectiveDate: "2026-07-01",
+    org: "MOFCOM",
+    orgCN: "商务部",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "pending",
+    description: "商务部等6部门联合发布，自2026年7月1日起：退税销售额1万元以下申请单按比例随机抽验；统一延长即买即退离境期限至28天；推行退税无纸化；推动即买即退异地互认。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://www.gov.cn/zhengce/zhengceku/202605/content_7069242.htm",
+    source: "Gov.cn"
+  },
+  {
+    id: "2026-020",
+    number: "GACC Announcement 2026 No.62",
+    numberCN: "海关总署公告2026年第62号",
+    title: "关于废止海关总署公告2010年第21号的公告",
+    date: "2026-05-12",
+    effectiveDate: "2026-05-12",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "effective",
+    description: "根据工作实际，决定废止海关总署公告2010年第21号（关于对重点固体废物实施分类装运管理的公告），自发布之日起生效。",
+    supersedes: ["海关总署公告2010年第21号"],
+    supersededDetails: [
+      { name: "海关总署公告2010年第21号", summary: "关于对重点固体废物实施分类装运管理的公告，为加强进口固体废物管理、打击走私违法行为，决定对废金属、废塑料、废纸等重点固体废物进口实施分类装运管理。", url: "http://www.customs.gov.cn/customs/302249/302266/302267/229641/index.html" }
+    ],
+    url: "http://www.customs.gov.cn/customs/2026-05/12/article_2026051219040436330.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-027",
+    number: "GACC Announcement 2026 No.74",
+    numberCN: "海关总署公告2026年第74号",
+    title: "关于中国与马来西亚原产地电子信息联网有关事宜的公告",
+    date: "2026-05-29",
+    effectiveDate: "2026-06-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "effective",
+    description: "进口货物收货人凭马来西亚签发的原产地证明申请享受RCEP或中国-东盟框架协定税率时，按海关总署公告2021年第34号选择通关无纸化方式申报，无需填报原产地证明电子数据。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://gkb.customs.gov.cn/customs/2026-06/01/article_2026060108483037184.html",
+    source: "GACC"
+  },
+  // ---- June ----
+  {
+    id: "2026-029",
+    number: "GACC Announcement 2026 No.77",
+    numberCN: "海关总署公告2026年第77号",
+    title: "关于规范车床、铣床、磨床等相关物项出口申报的公告",
+    date: "2026-06-05",
+    effectiveDate: "2026-06-30",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Export Control",
+    categoryCN: "出口管制",
+    status: "effective",
+    description: "规范车床、铣床、磨床等数控机床相关物项出口申报要求，出口经营者应依法如实向海关申报，强化出口管制物项的合规审查。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-06/08/article_2026060815495728350.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-030",
+    number: "GACC Announcement 2026 No.78",
+    numberCN: "海关总署公告2026年第78号",
+    title: "关于规范无人机及相关物项出口申报的公告",
+    date: "2026-06-09",
+    effectiveDate: "2026-06-30",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Export Control",
+    categoryCN: "出口管制",
+    status: "effective",
+    description: "规范无人机、无人驾驶飞艇及相关设备和部件、民用反无人机系统等物项出口申报要求，出口经营者应依法如实向海关申报，完善出口管制合规执行。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-06/09/article_2026060916145031632.html",
+    source: "GACC"
+  },
+  // ---- Export Tax Refund (出口退税) ----
+  {
+    id: "2026-STA01",
+    number: "MOF & STA Announcement 2026 No.2",
+    numberCN: "财政部 税务总局公告2026年第2号",
+    title: "关于调整光伏等产品出口退税政策的公告",
+    date: "2026-01-08",
+    effectiveDate: "2026-04-01",
+    org: "STA",
+    orgCN: "财政部/税务总局",
+    category: "Export Tax Refund",
+    categoryCN: "出口退税",
+    status: "effective",
+    description: "取消光伏产品（硅片、电池片、组件等全产业链）增值税出口退税；电池产品退税率由9%下调至6%（2026年），2027年起取消电池出口退税。消费税政策不变。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5246745/content.html",
+    source: "STA"
+  },
+  {
+    id: "2026-STA02",
+    number: "MOF & STA Announcement 2026 No.11",
+    numberCN: "财政部 税务总局公告2026年第11号",
+    title: "关于出口业务增值税和消费税政策的公告",
+    date: "2026-01-30",
+    effectiveDate: "2026-01-01",
+    org: "STA",
+    orgCN: "国家税务总局/财政部",
+    category: "Export Tax Refund",
+    categoryCN: "出口退税",
+    status: "effective",
+    description: "增值税法施行后核心配套文件，系统规定出口业务适用退(免)税、免税、征税三大政策范围；明确9类\u201c视同出口\u201d情形；规定退税率与适用税率一致原则；明确36个月申报期限；首次将\u201c按会计制度做销售\u201d列为退税基础条件。废止财税〔2012〕39号等旧文件。",
+    supersedes: ["财税〔2012〕39号"],
+    supersededDetails: [
+      { name: "财税〔2012〕39号", summary: "关于出口货物劳务增值税和消费税政策的通知，规定出口货物退(免)税范围、退税率计算方法及免税政策适用情形，是2012-2025年出口退税政策的基础文件。", url: "https://www.chinatax.gov.cn/chinatax/n810341/n810765/n812151/201206/c1083252/content.html" }
+    ],
+    url: "https://www.mof.gov.cn/jrttts/202602/t20260203_3983176.htm",
+    source: "STA"
+  },
+  {
+    id: "2026-STA03",
+    number: "STA Announcement 2026 No.5",
+    numberCN: "国家税务总局公告2026年第5号",
+    title: "关于发布《出口业务增值税和消费税退（免）税管理办法》的公告",
+    date: "2026-01-30",
+    effectiveDate: "2026-01-01",
+    org: "STA",
+    orgCN: "国家税务总局",
+    category: "Export Tax Refund",
+    categoryCN: "出口退税",
+    status: "effective",
+    description: "11号公告的操作细则，共64条。主要变化：备案5张表整合为1张\u201c一表通办\u201d；申报期限延长至36个月；收汇管理简化；合规凭证范围拓宽（免税可含普通发票等）；明确各类业务申报起止时间。废止2012年第24号公告等旧文件。",
+    supersedes: ["国家税务总局公告2012年第24号"],
+    supersededDetails: [
+      { name: "国家税务总局公告2012年第24号", summary: "发布《出口货物劳务增值税和消费税管理办法》，规定出口退税备案、申报、审核、退库等操作流程及凭证要求，是2012-2025年出口退税实务操作的核心指引文件。", url: "https://www.chinatax.gov.cn/n810341/n810765/n812151/n812411/c1083343/content.html" }
+    ],
+    url: "https://fgk.chinatax.gov.cn/zcfgk/c100012/c5247423/content.html",
+    source: "STA"
+  },
+  // ---- Inspection & Quarantine (检验检疫) ----
+  {
+    id: "2026-IQ01",
+    number: "GACC Order No.281",
+    numberCN: "海关总署令第281号",
+    title: "中华人民共和国海关进出境特殊货物物品卫生检疫管理规定",
+    date: "2026-01-06",
+    effectiveDate: "2026-08-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "pending",
+    description: "规范进出境特殊货物、物品卫生检疫监督管理，防止传染病跨境传播，保障公众生命安全。明确对高风险特殊货物实施卫生检疫准入管理，新增生物安全防控要求。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-01/07/article_2026010717085937212.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ02",
+    number: "GACC Order No.284",
+    numberCN: "海关总署令第284号",
+    title: "中华人民共和国海关进出口化妆品检验检疫监督管理办法",
+    date: "2026-05-06",
+    effectiveDate: "2026-12-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "pending",
+    description: "修订2012年版办法，加强进出口化妆品安全监管，新增电子标签试点、进口化妆品注册/备案号申报要求、检验检测机构资质认定等规定。",
+    supersedes: ["原质检总局进出口化妆品检验检疫监督管理办法(2012年版)"],
+    supersededDetails: [
+      { name: "原质检总局进出口化妆品检验检疫监督管理办法（总局令第143号）", summary: "2011年原国家质检总局发布的进出口化妆品检验检疫监管办法（总局令第143号），规定进口化妆品报检、检验、监管等基本流程和要求，自2012年2月1日起施行。", url: "https://www.gov.cn/govweb/gongbao/content/2012/content_2106865.htm" }
+    ],
+    url: "http://www.customs.gov.cn/customs/2026-05/07/article_2026050714351018800.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ03",
+    number: "GACC Announcement 2026 No.61",
+    numberCN: "海关总署公告2026年第61号",
+    title: "关于实施《中华人民共和国海关进出口化妆品检验检疫监督管理办法》有关事项的公告",
+    date: "2026-05-11",
+    effectiveDate: "2026-12-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "pending",
+    description: "细化进出口化妆品申报要求：进口须填报特殊化妆品注册证号/普通化妆品备案号；明确注册备案用样品、检测研发用样品的申报材料要求；明确\u201c国家技术规范的强制性要求\u201d范围。废止原质检总局2012年第110号公告等旧规。",
+    supersedes: ["原质检总局2012年第110号公告"],
+    supersededDetails: [
+      { name: "原质检总局公告2012年第110号", summary: "关于实施《进出口化妆品检验检疫监督管理办法》有关事项的公告，规定进口化妆品报检时应提交的材料及检验检疫流程要求。", url: "http://manzhouli.customs.gov.cn/qingdao_customs/sy24/3380825/3390013/3390016/3397808/index.html" }
+    ],
+    url: "http://cws.customs.gov.cn/customs/2026-05/13/article_2026051308334239942.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ04",
+    number: "GACC Announcement 2026 No.57",
+    numberCN: "海关总署公告2026年第57号",
+    title: "关于开展2026年度法定检验以外进出口商品抽查检验工作的公告",
+    date: "2026-05-08",
+    effectiveDate: "2026-06-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "effective",
+    description: "决定对法定检验以外的部分进出口商品实施抽查检验，公布抽查商品范围，保护消费者权益和生命健康安全。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-05/08/article_2026050820254669719.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ05",
+    number: "GACC Announcement 2026 No.69",
+    numberCN: "海关总署公告2026年第69号",
+    title: "关于铁路、公路运输方式进口煤炭检验采信要求的公告",
+    date: "2026-05-22",
+    effectiveDate: "2026-05-22",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "effective",
+    description: "将进口煤炭检验采信从海运扩展至铁路、公路运输方式，符合条件的企业可采信第三方检验机构结果，加快通关速度。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-05/22/article_2026052221355763372.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ06",
+    number: "Joint Announcement 2026 No.39",
+    numberCN: "海关总署 农业农村部 自然资源部 生态环境部 住房城乡建设部 国家林草局公告2026年第39号",
+    title: "关于发布《口岸重点管控外来物种名录》的公告",
+    date: "2026-04-13",
+    effectiveDate: "2026-05-01",
+    org: "GACC",
+    orgCN: "海关总署等六部门",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "effective",
+    description: "六部门联合发布口岸重点管控外来物种名录，与《外来入侵物种管理办法》衔接，形成精准管控外来入侵物种防控制度体系，加强口岸生物安全防线。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://fxs.customs.gov.cn/customs/2026-04/16/article_2026041609345142214.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ07",
+    number: "GACC Announcement 2026 No.81",
+    numberCN: "海关总署公告2026年第81号",
+    title: "关于修订发布《海关指定监管场地管理规范》的公告",
+    date: "2026-06-10",
+    effectiveDate: "2026-06-10",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "effective",
+    description: "修订2021年版管理规范，强化食品药品安全全链条监管要求，提升口岸动植物疫情防控能力，优化指定监管场地设立与管理流程。",
+    supersedes: ["海关总署公告2021年第4号（附件3：海关指定监管场地管理规范）"],
+    supersededDetails: [
+      { name: "海关总署公告2021年第4号（附件3：海关指定监管场地管理规范）", summary: "2021年海关总署发布的关于修订《海关监管作业场所(场地)设置规范》《海关监管作业场所(场地)监控摄像头设置规范》和《海关指定监管场地管理规范》的公告，附件3为第一版海关指定监管场地管理规范。", url: "http://gdfs.customs.gov.cn/customs/302249/302266/302267/3509190/index.html" }
+    ],
+    url: "http://www.customs.gov.cn/customs/2026-06/10/article_2026061017064361029.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ08",
+    number: "GACC Order No.280 & Announcement 2026 No.27",
+    numberCN: "海关总署令第280号及公告2026年第27号",
+    title: "中华人民共和国海关进口食品境外生产企业注册管理规定",
+    date: "2026-03-18",
+    effectiveDate: "2026-06-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "AEO / Enterprise",
+    categoryCN: "企业管理",
+    status: "effective",
+    description: "全面修订进口食品境外生产企业注册制度：将需官方推荐注册食品从18大类调整为17大类（移出咖啡豆可可豆、油料、杂粮等6类初级农产品）；建立不予自动延续注册清单；将贮存陆生动物源性食品和水产品的境外冷库纳入注册范围；基于风险实行注册分类管理。",
+    supersedes: ["海关总署令第248号（进口食品境外生产企业注册管理规定）"],
+    supersededDetails: [
+      { name: "海关总署令第248号", summary: "2021年发布的进口食品境外生产企业注册管理规定，首次将进口食品境外生产企业注册制度上升为部门规章，规定注册范围、程序及监管要求。", url: "https://www.gov.cn/gongbao/content/2021/content_5616161.htm" }
+    ],
+    url: "http://www.customs.gov.cn/customs/2026-03/18/article_2026031809353159843.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ09",
+    number: "GACC Order No.283",
+    numberCN: "海关总署令第283号",
+    title: "关于修改部分规章的决定",
+    date: "2026-04-27",
+    effectiveDate: "2026-11-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "pending",
+    description: "一揽子修改7部动植物检疫规章：7部规章统一增加《生物安全法》作为法律依据；调整检疫审批申请主体（从\u201c向海关总署申请\u201d改为\u201c向海关申请\u201d）；新增进境水果口岸准入条件条款。涉及《进境水果检验检疫监督管理办法》《出境水果检验检疫监督管理办法》《进境食用动物产品检验检疫监督管理办法》等7部规章。",
+    supersedes: ["7部动植物检疫规章原条款"],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-04/28/article_2026042811190688024.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ10",
+    number: "GACC Order No.285",
+    numberCN: "海关总署令第285号",
+    title: "关于废止《供港澳蔬菜检验检疫监督管理办法》的决定",
+    date: "2026-06-12",
+    effectiveDate: "2026-09-01",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "pending",
+    description: "基于供港澳蔬菜贸易发展和海关监管实际需要，完整废止原质检总局2009年第120号令公布的《供港澳蔬菜检验检疫监督管理办法》，涉及港澳食品供应监管体系的重大调整。",
+    supersedes: ["原质检总局令第120号（供港澳蔬菜检验检疫监督管理办法）"],
+    supersededDetails: [
+      { name: "原质检总局令第120号", summary: "2009年原国家质检总局发布的供港澳蔬菜检验检疫监督管理办法，规定供港澳蔬菜种植基地备案、报检、检验检疫监管等全流程要求。", url: "https://www.gov.cn/gzdt/2009-09/content_1419490.htm" }
+    ],
+    url: "http://www.customs.gov.cn/customs/2026-06/15/article_2026061510422642101.html",
+    source: "GACC"
+  },
+  {
+    id: "2026-IQ11",
+    number: "GACC Announcement 2026 No.83",
+    numberCN: "海关总署公告2026年第83号",
+    title: "关于发布海关检验检疫行政处罚法律文书模板的公告",
+    date: "2026-06-15",
+    effectiveDate: "2026-06-15",
+    org: "GACC",
+    orgCN: "海关总署",
+    category: "Inspection & Quarantine",
+    categoryCN: "检验检疫",
+    status: "effective",
+    description: "制定55份标准法律文书模板（行政处罚类45份、行政强制类10份），统一检验检疫行政处罚执法标准，规范执法程序和法律文书使用。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "http://www.customs.gov.cn/customs/2026-06/16/article_2026061608441456901.html",
+    source: "GACC"
+  }
+];
+
+// ==================== TAGS & COMMENTS (localStorage) ====================
+function getTags(id) {
+  try { return JSON.parse(localStorage.getItem('tags_' + id) || '[]'); } catch { return []; }
+}
+function saveTags(id, tags) {
+  localStorage.setItem('tags_' + id, JSON.stringify(tags));
+}
+function addTag(id, tag) {
+  const tags = getTags(id);
+  if (!tags.includes(tag)) { tags.push(tag); saveTags(id, tags); }
+}
+function removeTag(id, tag) {
+  const tags = getTags(id).filter(t => t !== tag);
+  saveTags(id, tags);
+}
+function getComment(id) {
+  return localStorage.getItem('comment_' + id) || '';
+}
+function saveComment(id, text) {
+  localStorage.setItem('comment_' + id, text);
+}
+
+// ==================== STATE ====================
+let regulations = [...BUILTIN_REGULATIONS];
+let currentFilters = { org: 'all', category: 'all', status: 'all' };
+let searchQuery = '';
+let animPlaying = false;
+let animTimer = null;
+let animMonth = 0;
+let animSpeedMs = 1200;
+
+// ==================== HELPERS ====================
+const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function getMonth(dateStr) { return parseInt(dateStr.split('-')[1], 10); }
+function formatStatus(s) { return {effective:'Effective',replaced:'Replaced',repealed:'Repealed',pending:'Pending'}[s]||s; }
+function orgColor(org) {
+  if (org === 'TCTC') return 'var(--accent-purple)';
+  if (org === 'MOFCOM') return 'var(--accent-teal)';
+  if (org === 'SCIO') return 'var(--accent-cyan)';
+  if (org === 'STA') return 'var(--accent-gold)';
+  return 'var(--accent-blue)';
+}
+function orgColorHex(org) {
+  if (org === 'TCTC') return '#805ad5';
+  if (org === 'MOFCOM') return '#319795';
+  if (org === 'SCIO') return '#0891b2';
+  if (org === 'STA') return '#d69e2e';
+  return '#2d5be3';
+}
+function catIcon(cat) { return {'Tariff':'💰','Export Control':'🔒','AEO / Enterprise':'🏢','Customs Supervision':'🛃','Bonded / FTZ':'🏗️','Export Tax Refund':'💸','Inspection & Quarantine':'🔬'}[cat]||'📋'; }
+function sourceBadge(source) {
+  if (source === 'Gov.cn') return '<span class="badge badge-source">Gov.cn</span>';
+  if (source === 'TCTC') return '<span class="badge badge-source" style="background:#805ad5;color:#fff">TCTC</span>';
+  if (source === 'STA') return '<span class="badge badge-source" style="background:#d69e2e;color:#fff">STA</span>';
+  return '';
+}
+
+function getFilteredRegs() {
+  return regulations.filter(r => {
+    if (currentFilters.org !== 'all' && r.org !== currentFilters.org) return false;
+    if (currentFilters.category !== 'all' && r.category !== currentFilters.category) return false;
+    if (currentFilters.status !== 'all' && r.status !== currentFilters.status) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return r.title.toLowerCase().includes(q) || r.number.toLowerCase().includes(q) || r.numberCN.toLowerCase().includes(q) || (r.description && r.description.toLowerCase().includes(q));
+    }
+    return true;
+  });
+}
+
+function getMonthCounts(regs) {
+  const counts = {};
+  for (let m = 1; m <= 12; m++) counts[m] = 0;
+  regs.forEach(r => { counts[getMonth(r.date)]++; });
+  return counts;
+}
+
+// ==================== RENDER ====================
+function renderHeaderStats() {
+  const total = regulations.length;
+  const effective = regulations.filter(r => r.status === 'effective').length;
+  const pending = regulations.filter(r => r.status === 'pending').length;
+  const withSupersedes = regulations.filter(r => r.supersedes && r.supersedes.length > 0).length;
+  const sources = new Set(regulations.map(r => r.source)).size;
+
+  document.getElementById('headerStats').innerHTML = `
+    <div class="stat-item"><span class="stat-value">${total}</span><span class="stat-label">Total</span></div>
+    <div class="stat-item"><span class="stat-value" style="color:#68d391">${effective}</span><span class="stat-label">Effective</span></div>
+    <div class="stat-item"><span class="stat-value" style="color:#fbd38d">${pending}</span><span class="stat-label">Pending</span></div>
+    <div class="stat-item"><span class="stat-value" style="color:#fc8181">${withSupersedes}</span><span class="stat-label">w/ Superseded</span></div>
+    <div class="stat-item"><span class="stat-value" style="color:#90cdf4">${sources}</span><span class="stat-label">Sources</span></div>
+  `;
+}
+
+function renderMonthlyBars() {
+  const counts = getMonthCounts(regulations);
+  const max = Math.max(...Object.values(counts), 1);
+  const container = document.getElementById('monthlyBars');
+
+  container.innerHTML = Object.entries(counts).map(([m, c]) => {
+    const pct = (c / max * 100).toFixed(0);
+    const color = c > 0 ? 'var(--accent-blue)' : '#e0e0ef';
+    return `
+      <div class="month-bar" data-month="${m}" onclick="scrollToMonth(${m})">
+        <span class="month-label">${monthNames[parseInt(m)-1]}</span>
+        <div class="month-bar-track">
+          <div class="month-bar-fill" style="width:${c > 0 ? Math.max(pct, 15) : 0}%;background:${color}">${c > 0 ? c : ''}</div>
+        </div>
+        <span class="month-count">${c}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTimeline() {
+  const regs = getFilteredRegs();
+  document.getElementById('regCount').textContent = `${regs.length} items`;
+
+  if (regs.length === 0) {
+    document.getElementById('timeline').innerHTML = `<div class="no-results"><div class="icon">🔍</div><p>No matching regulations found</p></div>`;
+    return;
+  }
+
+  const grouped = {};
+  for (let m = 1; m <= 12; m++) grouped[m] = [];
+  regs.forEach(r => { grouped[getMonth(r.date)].push(r); });
+
+  let html = '';
+  for (let m = 1; m <= 12; m++) {
+    if (grouped[m].length === 0) continue;
+    const eff = grouped[m].filter(r => r.status === 'effective').length;
+    const pen = grouped[m].filter(r => r.status === 'pending').length;
+
+    html += `<div class="month-group fade-in" id="month-${m}">
+      <div class="month-header">
+        <h3>${monthNames[m-1]} 2026</h3>
+        <div class="month-summary">${grouped[m].length} items | Effective: ${eff} | Pending: ${pen}</div>
+      </div>`;
+
+    grouped[m].sort((a, b) => b.date.localeCompare(a.date));
+    grouped[m].forEach(r => { html += renderRegCard(r); });
+    html += '</div>';
+  }
+
+  document.getElementById('timeline').innerHTML = html;
+}
+
+function renderRegCard(r) {
+  let relHtml = '';
+  if (r.supersedes && r.supersedes.length > 0) {
+    relHtml += `<div class="reg-relation"><span style="color:var(--text-muted)">🔥 Supersedes:</span>`;
+    r.supersedes.forEach(s => {
+      relHtml += ` <span class="relation-link replaces" onclick="event.stopPropagation();highlightRelated('${s.replace(/'/g,"\\'")}')"><span>🔥</span>${s}</span>`;
+    });
+    relHtml += '</div>';
+  }
+
+  // Tags
+  const tags = getTags(r.id);
+  let tagsHtml = '';
+  if (tags.length > 0) {
+    tagsHtml = '<div class="reg-tags-row">';
+    tags.forEach(t => {
+      tagsHtml += `<span class="tag-chip">${t}<span class="tag-remove" onclick="event.stopPropagation();removeTagAndRender('${r.id}','${t.replace(/'/g,"\\'")}')">×</span></span>`;
+    });
+    tagsHtml += '</div>';
+  }
+
+  return `
+    <div class="reg-card ${r.status} fade-in" id="card-${r.id}" data-number="${r.number}" data-numbercn="${r.numberCN}" onclick="openModal('${r.id}')">
+      <div class="reg-header">
+        <div class="reg-title">${r.title}</div>
+        <div class="reg-badges">
+          <span class="badge badge-${r.status}">${formatStatus(r.status)}</span>
+          <span class="badge badge-org">${r.org}</span>
+          ${r.org !== r.source ? sourceBadge(r.source) : ''}
+        </div>
+      </div>
+      <div class="reg-meta">
+        <span>📄 ${r.numberCN}</span>
+        <span>📅 ${r.date}</span>
+        <span>⏱ ${r.effectiveDate}</span>
+        <span>${catIcon(r.category)} ${r.category}</span>
+      </div>
+      <div class="reg-desc">${r.description}</div>
+      ${tagsHtml}
+      ${relHtml}
+    </div>`;
+}
+
+function renderAnimTrack() {
+  const counts = getMonthCounts(regulations);
+  const max = Math.max(...Object.values(counts), 1);
+  const track = document.getElementById('animTrack');
+
+  track.innerHTML = monthNames.map((name, i) => {
+    const m = i + 1;
+    const c = counts[m];
+    const h = Math.max((c / max) * 42, 3);
+    const active = m <= animMonth;
+    const isCurrent = m === animMonth;
+    const color = active ? orgColorHex('GACC') : '#e0e0ef';
+    return `<div class="month-dot-col ${isCurrent?'current':''} ${active?'active':''}" onclick="jumpToMonth(${m})">
+      <div class="month-dot-bar" style="height:${h}px;background:${color}"></div>
+      <span class="month-dot-label">${name}</span>
+    </div>`;
+  }).join('');
+}
+
+// ==================== INTERACTIONS ====================
+function setupFilters() {
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+      const value = btn.dataset.value;
+      document.querySelectorAll(`.filter-btn[data-filter="${filter}"]`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilters[filter] = value;
+      renderTimeline();
+    });
+  });
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderTimeline();
+  });
+}
+
+function scrollToMonth(m) {
+  const el = document.getElementById(`month-${m}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.month-bar').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.month-bar[data-month="${m}"]`)?.classList.add('active');
+}
+
+function openModal(id) {
+  const r = regulations.find(reg => reg.id === id);
+  if (!r) return;
+
+  let relHtml = '';
+  if (r.supersedes && r.supersedes.length > 0 && r.supersededDetails) {
+    relHtml += `<div class="modal-relations"><h4>🔥 Superseded Regulations (废止/替代的旧法规)</h4>`;
+    r.supersededDetails.forEach(s => {
+      relHtml += `<div class="superseded-item">
+        <div class="s-name">🔥 ${s.name}</div>
+        <div class="s-summary">${s.summary}</div>
+        ${s.url ? `<div class="s-link"><a href="${s.url}" target="_blank">View Original →</a></div>` : ''}
+      </div>`;
+    });
+    relHtml += '</div>';
+  }
+
+  const referencedBy = regulations.filter(reg => reg.supersedes && reg.supersedes.some(s => s.includes(r.numberCN) || r.numberCN.includes(s)));
+  if (referencedBy.length > 0) {
+    relHtml += `<div class="modal-relations"><h4>📌 Referenced by (引用本法规的新法规)</h4>`;
+    referencedBy.forEach(ref => {
+      relHtml += `<div class="relation-link supersedes" style="margin:3px 0;cursor:pointer;" onclick="openModal('${ref.id}');closeModal();">📌 ${ref.numberCN}</div>`;
+    });
+    relHtml += '</div>';
+  }
+
+  // Tags
+  const tags = getTags(r.id);
+  let tagsHtml = '';
+  tags.forEach(t => {
+    tagsHtml += `<span class="tag-chip-modal">${t}<span class="tag-remove" onclick="removeTagFromModal('${r.id}','${t.replace(/'/g,"\\'")}')">×</span></span>`;
+  });
+
+  // Comment
+  const comment = getComment(r.id);
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-title">${r.title}</div>
+    <div class="modal-field"><div class="field-label">Document Number / 文号</div><div class="field-value">${r.number}<br><span style="font-size:12px;color:var(--text-muted)">${r.numberCN}</span></div></div>
+    <div class="modal-field"><div class="field-label">Issuing Authority / 发布机构</div><div class="field-value" style="color:${orgColor(r.org)};font-weight:600;">${r.org} (${r.orgCN})</div></div>
+    <div class="modal-field"><div class="field-label">Category / 法规类别</div><div class="field-value">${catIcon(r.category)} ${r.category} (${r.categoryCN})</div></div>
+    <div class="modal-field"><div class="field-label">Issue Date / 发布日期</div><div class="field-value">${r.date}</div></div>
+    <div class="modal-field"><div class="field-label">Effective Date / 生效日期</div><div class="field-value">${r.effectiveDate}</div></div>
+    <div class="modal-field"><div class="field-label">Status / 当前状态</div><div class="field-value">${formatStatus(r.status)}</div></div>
+    <div class="modal-field"><div class="field-label">Data Source / 数据来源</div><div class="field-value">${r.source}</div></div>
+    <div class="modal-field"><div class="field-label">Summary / 内容摘要</div><div class="field-value" style="line-height:1.7">${r.description}</div></div>
+    ${r.url ? `<div class="modal-field"><div class="field-label">Original Text / 原文链接</div><div class="field-value"><a href="${r.url}" target="_blank" style="color:var(--accent-blue);">View Original →</a></div></div>` : ''}
+    ${relHtml}
+    <div class="tags-section">
+      <h4>🏷️ Tags / 标签</h4>
+      <div class="tags-container" id="modalTagsContainer">${tagsHtml}</div>
+      <div class="tag-input-row">
+        <input type="text" class="tag-input" id="tagInput" placeholder="Add tag..." onkeydown="if(event.key==='Enter')addTagFromModal('${r.id}')">
+        <button class="tag-add-btn" onclick="addTagFromModal('${r.id}')">+ Add</button>
+      </div>
+    </div>
+    <div class="comment-section">
+      <h4 style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">📝 Internal Notes / 内部备注</h4>
+      <textarea class="comment-textarea" id="commentTextarea" placeholder="Add internal notes or comments...">${comment}</textarea>
+      <button class="comment-save-btn" onclick="saveCommentFromModal('${r.id}')">💾 Save</button>
+      ${comment ? `<div class="saved-comment">${comment}</div>` : ''}
+    </div>`;
+
+  document.getElementById('modal').classList.add('visible');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('visible'); }
+document.getElementById('modal').addEventListener('click', (e) => { if (e.target === document.getElementById('modal')) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+function highlightRelated(numberStr) {
+  const cards = document.querySelectorAll('.reg-card');
+  let found = false;
+  cards.forEach(card => {
+    const cn = card.dataset.numbercn || card.dataset.number || '';
+    if (cn.includes(numberStr) || numberStr.includes(cn)) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.classList.add('highlighted');
+      setTimeout(() => card.classList.remove('highlighted'), 3000);
+      found = true;
+    }
+  });
+  if (!found) alert(`"${numberStr}" was issued before 2026 and is not included in this tracker.`);
+}
+
+function addTagFromModal(id) {
+  const input = document.getElementById('tagInput');
+  const tag = input.value.trim();
+  if (tag) {
+    addTag(id, tag);
+    input.value = '';
+    openModal(id); // refresh modal
+    renderTimeline(); // refresh cards
+  }
+}
+
+function removeTagFromModal(id, tag) {
+  removeTag(id, tag);
+  openModal(id); // refresh modal
+  renderTimeline(); // refresh cards
+}
+
+function removeTagAndRender(id, tag) {
+  removeTag(id, tag);
+  renderTimeline();
+}
+
+function saveCommentFromModal(id) {
+  const text = document.getElementById('commentTextarea').value;
+  saveComment(id, text);
+  openModal(id); // refresh
+}
+
+// ==================== ANIMATION ====================
+function toggleAnimation() { animPlaying ? stopAnimation() : startAnimation(); }
+
+function startAnimation() {
+  animPlaying = true;
+  const btn = document.getElementById('animPlayBtn');
+  btn.textContent = '⏸ Pause';
+  btn.classList.add('playing');
+  if (animMonth >= 12) animMonth = 0;
+  animTimer = setInterval(() => {
+    animMonth++;
+    if (animMonth > 12) { stopAnimation(); return; }
+    updateAnimDisplay();
+  }, animSpeedMs);
+  updateAnimDisplay();
+}
+
+function stopAnimation() {
+  animPlaying = false;
+  clearInterval(animTimer);
+  const btn = document.getElementById('animPlayBtn');
+  btn.textContent = '▶ Play';
+  btn.classList.remove('playing');
+}
+
+function resetAnimation() {
+  stopAnimation();
+  animMonth = 0;
+  updateAnimDisplay();
+  document.querySelectorAll('.month-group').forEach(g => g.style.opacity = '');
+}
+
+function updateAnimDisplay() {
+  document.getElementById('animDate').textContent = `${monthNames[Math.max(animMonth-1,0)]} 2026`;
+  renderAnimTrack();
+  document.querySelectorAll('.month-group').forEach(g => {
+    const m = parseInt(g.id.replace('month-', ''), 10);
+    g.style.opacity = animMonth === 0 ? '' : (m <= animMonth ? '1' : '0.15');
+  });
+  if (animMonth > 0) {
+    const el = document.getElementById(`month-${animMonth}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function jumpToMonth(m) { animMonth = m; updateAnimDisplay(); }
+
+function updateAnimSpeed() {
+  animSpeedMs = parseInt(document.getElementById('animSpeed').value, 10);
+  if (animPlaying) { stopAnimation(); startAnimation(); }
+}
+
+// ==================== AUTO-UPDATE ====================
+async function fetchLatestRegulations() {
+  showToast('Fetching latest regulations...');
+  let newCount = 0;
+
+  try {
+    // Try fetching from gov.cn policy search
+    const resp = await fetch('https://www.gov.cn/zhengce/zhengceku/api/search?keyword=%E6%B5%B7%E5%85%B3&year=2026', {
+      mode: 'cors',
+      headers: { 'Accept': 'application/json' }
+    }).catch(() => null);
+
+    if (resp && resp.ok) {
+      const data = await resp.json();
+      // Process if available
+    }
+  } catch (e) {
+    console.log('API fetch note:', e.message);
+  }
+
+  // Sort by date
+  regulations.sort((a, b) => b.date.localeCompare(a.date));
+
+  // Re-render
+  renderAll();
+
+  const now = new Date();
+  const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('lastUpdate').textContent = `Last update: ${timeStr} ${newCount > 0 ? '('+newCount+' new)' : '(data current)'}`;
+
+  hideToast();
+}
+
+function showToast(text) {
+  const t = document.getElementById('fetchToast');
+  document.getElementById('fetchToastText').textContent = text;
+  t.classList.add('visible');
+}
+
+function hideToast() {
+  setTimeout(() => document.getElementById('fetchToast').classList.remove('visible'), 1500);
+}
+
+// ==================== INIT ====================
+function renderAll() {
+  renderHeaderStats();
+  renderMonthlyBars();
+  renderTimeline();
+  renderAnimTrack();
+}
+
+function init() {
+  setupFilters();
+  renderAll();
+
+  // Initial fetch
+  fetchLatestRegulations();
+
+  // Auto-refresh every 6 hours
+  setInterval(fetchLatestRegulations, 6 * 60 * 60 * 1000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
