@@ -1,4 +1,15 @@
 {
-  "annotations": {},
-  "lastUpdated": "2026-06-17T00:00:00Z"
+  "annotations": {
+    "2026-STA02": {
+      "tags": [
+        {
+          "text": "I AM A TAG.",
+          "author": "Camellia",
+          "createdAt": "2026-06-17T11:48:38.891Z"
+        }
+      ],
+      "notes": []
+    }
+  },
+  "lastUpdated": "2026-06-17T11:48:38.892Z"
 }
