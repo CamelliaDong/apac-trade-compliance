@@ -51,10 +51,24 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add index.html data/update_log.json
           COMMIT_MSG="🤖 Auto-update: new regulations detected - $(date +%Y-%m-%d)"
           git commit -m "$COMMIT_MSG" || echo "Commit failed, possibly empty"
           git push origin gh-pages || echo "Push failed"
+
+      - name: Push update log even when no new regulations
+        if: steps.run_update.outputs.has_changes == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/update_log.json || true
+          if ! git diff --cached --quiet; then
+            COMMIT_MSG="🤖 Auto-update: checked, no new regulations - $(date +%Y-%m-%d)"
+            git commit -m "$COMMIT_MSG"
+            git push origin gh-pages || echo "Push failed"
+          else
+            echo "No changes to commit (update_log unchanged)"
+          fi
 
       - name: Check for notification file (needs manual review)
         id: check_notification
@@ -72,36 +86,43 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Check existing open issues to avoid duplicates
+          EXISTING_ISSUES=$(gh issue list --state open --label auto-detected --limit 50 2>/dev/null || echo "")
+          EXISTING_COUNT=$(echo "$EXISTING_ISSUES" | grep -c "New Regulations" || echo "0")
+          
+          if [ "$EXISTING_COUNT" -gt 5 ]; then
+            echo "⚠️ Already $EXISTING_COUNT open auto-detected issues — skipping to avoid accumulation"
+            echo "Please review and close existing issues before new ones are created."
+            exit 0
+          fi
+          
           # Read the notification data
-          TITLE="⚠️ Regulations Needing Manual Review - $(date +%Y-%m-%d)"
+          TITLE="🆕 New Regulations Detected - $(date +%Y-%m-%d)"
           BODY=$(python3 -c "
           import json
           with open('new_regulations.json', 'r') as f:
               data = json.load(f)
-          lines = ['## Regulations Needing Manual Review', '']
+          lines = ['## New Regulations Detected', '']
           lines.append(f'**Check Time:** {data[\"timestamp\"]}')
-          lines.append(f'**Total New Regulations:** {data[\"total_new\"]}')
-          lines.append(f'**Need Review:** {data[\"needs_review\"]}')
           lines.append('')
-          lines.append('The following regulations were auto-detected but need manual verification:')
+          lines.append('The following new regulations were detected from official sources:')
           lines.append('')
           for reg in data['regulations_needing_review']:
               lines.append(f'### {reg.get(\"numberCN\", \"Unknown\")}')
-              lines.append(f'- **ID:** {reg.get(\"id\", \"Unknown\")}')
-              lines.append(f'- **Title:** {reg.get(\"title\", \"Unknown\")}')
-              lines.append(f'- **URL:** {reg[\"url\"]}')
-              lines.append(f'- **Reason:** {reg.get(\"reason\", \"Needs verification\")}')
+              lines.append(f'- **Source:** {reg.get(\"source\", reg.get(\"url\", \"\"))}')
+              lines.append(f'- **URL:** [{reg[\"url\"]}]({reg[\"url\"]})')
               lines.append('')
           lines.append('---')
           lines.append('')
-          lines.append('💡 Run the `apac-trade-compliance-updater` Skill locally to verify and complete these entries.')
-          lines.append('The entries have been added to the tracker with `status: pending` and placeholder descriptions.')
+          lines.append('💡 These entries have been added to the tracker with `status: pending`.')
+          lines.append('Run the Skill locally to verify and complete them.')
           print('\\n'.join(lines))
           ")
           
-          # Create issue using GitHub CLI
+          # Create issue with auto-detected label
           echo "$BODY" | gh issue create \
             --title "$TITLE" \
+            --label "auto-detected" \
             --body-file - || true
 
       - name: Cleanup

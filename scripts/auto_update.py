@@ -774,6 +774,23 @@ def main():
     
     if not truly_new:
         print("No new regulations found. Exiting cleanly.")
+        # Still update the log for monitoring dashboard
+        update_log = {
+            "last_run": datetime.now().isoformat(),
+            "run_result": "no_new",
+            "total_existing": len(existing_ids),
+            "total_found": len(all_new),
+            "new_found": 0,
+            "new_added": 0,
+            "needs_review": 0,
+            "entries": []
+        }
+        log_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, 'update_log.json')
+        with open(log_path, 'w', encoding='utf-8') as f:
+            json.dump(update_log, f, ensure_ascii=False, indent=2)
+        print(f"✅ Saved update_log.json (no new regulations)")
         return False
     
     # Process each new regulation
@@ -872,6 +889,33 @@ def main():
     
     print(f"✅ Updated index.html with {len(processed_entries)} new regulations")
     
+    # Create update log for monitoring dashboard
+    update_log = {
+        "last_run": datetime.now().isoformat(),
+        "run_result": "success",
+        "total_existing": len(existing_ids),
+        "total_found": len(all_new),
+        "new_found": len(truly_new),
+        "new_added": len(processed_entries),
+        "needs_review": len(needs_review),
+        "entries": [
+            {
+                "id": e['id'],
+                "title": e['title'],
+                "status": e['status'],
+                "category": e['category'],
+                "url": e['url']
+            }
+            for e in processed_entries
+        ]
+    }
+    log_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, 'update_log.json')
+    with open(log_path, 'w', encoding='utf-8') as f:
+        json.dump(update_log, f, ensure_ascii=False, indent=2)
+    print(f"✅ Saved update_log.json")
+
     # Create notification for regulations that need manual review
     if needs_review:
         notification = {

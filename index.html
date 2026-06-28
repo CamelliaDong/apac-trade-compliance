@@ -1070,6 +1070,155 @@ body {
 }
 .nickname-bar .settings-btn:hover { color: var(--accent-blue); }
 
+/* Monitoring Dashboard */
+.monitor-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 2px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+.monitor-btn:hover { color: var(--accent-green); }
+
+.monitor-panel {
+  position: fixed;
+  bottom: 50px;
+  right: 16px;
+  width: 320px;
+  max-height: 70vh;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 18px;
+  z-index: 250;
+  transform: translateY(10px) scale(0.97);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  overflow-y: auto;
+}
+.monitor-panel.open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.monitor-panel h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--accent-green);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.monitor-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.monitor-status-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  text-align: center;
+}
+
+.monitor-status-card .status-value {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.monitor-status-card .status-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.monitor-last-run {
+  background: rgba(56,161,105,0.08);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  font-size: 12px;
+}
+
+.monitor-last-run .run-time {
+  font-weight: 600;
+  color: var(--accent-green);
+}
+
+.monitor-last-run .run-result {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.monitor-pending-list {
+  margin-bottom: 14px;
+}
+
+.monitor-pending-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.monitor-pending-item:last-child { border-bottom: none; }
+
+.monitor-pending-item .pending-badge {
+  background: #ffeb3b;
+  color: #5d4037;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.monitor-pending-item .pending-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.monitor-pending-item a {
+  font-size: 11px;
+  color: var(--accent-blue);
+}
+
+.monitor-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.monitor-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--accent-blue);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.monitor-links a:hover { background: rgba(45,91,227,0.1); }
+
 /* Settings Panel */
 .settings-panel {
   position: fixed;
@@ -1358,6 +1507,33 @@ body {
   <span class="sync-label" id="syncLabel">Local</span>
   <span id="syncStatus"></span>
   <button class="settings-btn" onclick="toggleSettingsPanel()" title="Sync Settings">⚙️</button>
+  <span class="bar-divider"></span>
+  <button class="monitor-btn" onclick="toggleMonitorPanel()" title="Auto-Update Dashboard">🤖</button>
+</div>
+
+<!-- Monitoring Dashboard -->
+<div class="monitor-panel" id="monitorPanel">
+  <h4>🤖 Auto-Update Dashboard</h4>
+  <div class="monitor-status-grid">
+    <div class="monitor-status-card">
+      <div class="status-value" id="monitorTotal">-</div>
+      <div class="status-label">Total Regulations</div>
+    </div>
+    <div class="monitor-status-card">
+      <div class="status-value" id="monitorPending" style="color:#d69e2e">-</div>
+      <div class="status-label">Pending Review</div>
+    </div>
+  </div>
+  <div class="monitor-last-run" id="monitorLastRun">
+    <div class="run-time">⏳ Loading...</div>
+    <div class="run-result">Fetching update log from GitHub</div>
+  </div>
+  <div class="monitor-pending-list" id="monitorPendingList"></div>
+  <div class="monitor-links">
+    <a href="https://github.com/CamelliaDong/apac-trade-compliance/actions/workflows/auto_update.yml" target="_blank">📊 Actions</a>
+    <a href="https://github.com/CamelliaDong/apac-trade-compliance/issues?q=is%3Aissue+state%3Aopen+label%3Aauto-detected" target="_blank">📋 Issues</a>
+    <a href="https://github.com/CamelliaDong/apac-trade-compliance" target="_blank">📂 Repo</a>
+  </div>
 </div>
 
 <!-- Settings Panel -->
@@ -2764,10 +2940,67 @@ function updateSyncBar() {
 
 function toggleSettingsPanel() {
   const panel = document.getElementById('settingsPanel');
+  const monitor = document.getElementById('monitorPanel');
+  monitor.classList.remove('open'); // Close monitor when opening settings
   panel.classList.toggle('open');
   if (panel.classList.contains('open')) {
     updateSettingsPanelState();
   }
+}
+
+// ========== Monitoring Dashboard ==========
+
+function toggleMonitorPanel() {
+  const panel = document.getElementById('monitorPanel');
+  const settings = document.getElementById('settingsPanel');
+  settings.classList.remove('open'); // Close settings when opening monitor
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    loadMonitorData();
+  }
+}
+
+function loadMonitorData() {
+  // Count pending regulations
+  const total = BUILTIN_REGULATIONS.length;
+  const pending = BUILTIN_REGULATIONS.filter(r => r.status === 'pending');
+  document.getElementById('monitorTotal').textContent = total;
+  document.getElementById('monitorPending').textContent = pending.length;
+
+  // Render pending list
+  const listEl = document.getElementById('monitorPendingList');
+  if (pending.length === 0) {
+    listEl.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">✅ No pending regulations — all reviewed!</div>';
+  } else {
+    listEl.innerHTML = '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Regulations awaiting manual review:</div>' +
+      pending.map(r => `<div class="monitor-pending-item">
+        <span class="pending-badge">⏳</span>
+        <span class="pending-title">${r.title || r.numberCN}</span>
+        <a href="${r.url}" target="_blank" title="View source">🔗</a>
+      </div>`).join('');
+  }
+
+  // Fetch update log from GitHub
+  fetch('https://raw.githubusercontent.com/CamelliaDong/apac-trade-compliance/gh-pages/data/update_log.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (data) {
+        const runTime = new Date(data.last_run);
+        const timeStr = runTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+        document.getElementById('monitorLastRun').innerHTML =
+          `<div class="run-time">✅ Last run: ${timeStr}</div>
+           <div class="run-result">Found ${data.new_found || 0} new, added ${data.new_added || 0} entries. ${data.needs_review || 0} need review.</div>`;
+      } else {
+        document.getElementById('monitorLastRun').innerHTML =
+          `<div class="run-time" style="color:var(--text-muted)">ℹ️ Update log not found</div>
+           <div class="run-result">GitHub Actions may not have run yet, or log file is missing.</div>`;
+      }
+    })
+    .catch(() => {
+      document.getElementById('monitorLastRun').innerHTML =
+        `<div class="run-time" style="color:var(--accent-orange)">⚠️ Could not fetch update log</div>
+         <div class="run-result">Check GitHub Actions page directly.</div>`;
+    });
 }
 
 function savePATFromPanel() {

@@ -1,0 +1,25 @@
+{
+  "last_run": "2026-06-28T00:34:20+00:00",
+  "run_result": "success",
+  "total_existing": 34,
+  "total_found": 6,
+  "new_found": 2,
+  "new_added": 2,
+  "needs_review": 2,
+  "entries": [
+    {
+      "id": "2026-035",
+      "title": "关于2026年燃料油非国营贸易进口申请企业有关情况的公示",
+      "status": "pending",
+      "category": "Customs Supervision",
+      "url": "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_d8d293b6c13c462e969e3a9223a0b23f.html"
+    },
+    {
+      "id": "2026-036",
+      "title": "商务部公告2026年第26号 公布关于进一步完善战略矿产两用物项出口管制违法违规行为举报处理工作有关事项",
+      "status": "pending",
+      "category": "Export Control",
+      "url": "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_34c1dcb0749f423e88ae4021f8118891.html"
+    }
+  ]
+}
