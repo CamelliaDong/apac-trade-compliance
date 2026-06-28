@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,51 +30,76 @@ jobs:
           pip install requests beautifulsoup4 lxml
 
       - name: Run auto-update check
+        id: run_update
         run: |
           python scripts/auto_update.py
+          # Check if index.html was modified
+          if git diff --quiet index.html; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes to index.html"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in index.html"
+            # Show the diff summary
+            git diff --stat index.html
+          fi
         env:
           PYTHONIOENCODING: utf-8
 
-      - name: Check for notification file
+      - name: Commit and push changes
+        if: steps.run_update.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          COMMIT_MSG="🤖 Auto-update: new regulations detected - $(date +%Y-%m-%d)"
+          git commit -m "$COMMIT_MSG" || echo "Commit failed, possibly empty"
+          git push origin gh-pages || echo "Push failed"
+
+      - name: Check for notification file (needs manual review)
         id: check_notification
         run: |
           if [ -f "new_regulations.json" ]; then
-            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "needs_review=true" >> $GITHUB_OUTPUT
             cat new_regulations.json
           else
-            echo "has_updates=false" >> $GITHUB_OUTPUT
-            echo "No new regulations found"
+            echo "needs_review=false" >> $GITHUB_OUTPUT
+            echo "No regulations needing manual review"
           fi
 
-      - name: Create GitHub Issue for new regulations
-        if: steps.check_notification.outputs.has_updates == 'true'
+      - name: Create GitHub Issue for regulations needing review
+        if: steps.check_notification.outputs.needs_review == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Read the notification data
-          TITLE="🆕 New Regulations Detected - $(date +%Y-%m-%d)"
+          TITLE="⚠️ Regulations Needing Manual Review - $(date +%Y-%m-%d)"
           BODY=$(python3 -c "
           import json
           with open('new_regulations.json', 'r') as f:
               data = json.load(f)
-          lines = ['## New Regulations Detected', '']
-          lines.append(f'**Check Time:** {data[\"timestamp\"]}', )
+          lines = ['## Regulations Needing Manual Review', '']
+          lines.append(f'**Check Time:** {data[\"timestamp\"]}')
+          lines.append(f'**Total New Regulations:** {data[\"total_new\"]}')
+          lines.append(f'**Need Review:** {data[\"needs_review\"]}')
           lines.append('')
-          lines.append('The following new regulations were detected from official sources:')
+          lines.append('The following regulations were auto-detected but need manual verification:')
           lines.append('')
-          for reg in data['new_regulations']:
-              lines.append(f'### {reg.get(\"numberCN\", reg.get(\"numberCN_raw\", \"Unknown\"))}')
-              lines.append(f'- **Source:** {reg[\"source_type\"]}')
+          for reg in data['regulations_needing_review']:
+              lines.append(f'### {reg.get(\"numberCN\", \"Unknown\")}')
+              lines.append(f'- **ID:** {reg.get(\"id\", \"Unknown\")}')
+              lines.append(f'- **Title:** {reg.get(\"title\", \"Unknown\")}')
               lines.append(f'- **URL:** {reg[\"url\"]}')
+              lines.append(f'- **Reason:** {reg.get(\"reason\", \"Needs verification\")}')
               lines.append('')
           lines.append('---')
           lines.append('')
-          lines.append('⚠️ **Manual review required** before adding these to the tracker.')
-          lines.append('Please verify the regulation details (dates, category, description) against the original source.')
-          print('\n'.join(lines))
+          lines.append('💡 Run the `apac-trade-compliance-updater` Skill locally to verify and complete these entries.')
+          lines.append('The entries have been added to the tracker with `status: pending` and placeholder descriptions.')
+          print('\\n'.join(lines))
           ")
           
-          # Create issue using GitHub CLI (no custom labels - they may not exist)
+          # Create issue using GitHub CLI
           echo "$BODY" | gh issue create \
             --title "$TITLE" \
             --body-file - || true
