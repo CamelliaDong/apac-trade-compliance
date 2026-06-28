@@ -415,7 +415,16 @@ def insert_regulations_into_html(html_content, new_entries):
     new_block = '\n' + '\n'.join(header_comments) + '\n' + ',\n'.join(entry_strings) + '\n'
     
     # Insert before the closing ];
-    new_html = html_content[:insert_pos] + new_block + html_content[insert_pos:]
+    # CRITICAL: Ensure the last existing entry has a trailing comma
+    # Check if the character before the insert position (];) ends with } without a comma
+    # If so, we need to add a comma to avoid a JavaScript syntax error
+    preceding_text = html_content[:insert_pos].rstrip()
+    if preceding_text.endswith('}'):
+        # The last entry closes with } but no comma - add one
+        preceding_text += ','
+        new_html = preceding_text + '\n' + new_block + html_content[insert_pos:]
+    else:
+        new_html = html_content[:insert_pos] + new_block + html_content[insert_pos:]
     
     return new_html
 
