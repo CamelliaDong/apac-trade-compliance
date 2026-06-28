@@ -84,6 +84,32 @@ CATEGORY_EMOJI_MAP = {
     'Inspection & Quarantine': '🔬',
 }
 
+# URL reliability patterns: URLs containing these substrings are unreliable
+# and should be flagged/replaced with MOFCOM mirrors when found in supersededDetails
+UNRELIABLE_URL_PATTERNS = [
+    r'customs\.gov\.cn/customs/302249',    # Old-format 302 path: 412 WAF blocked
+    r'customs\.gov\.cn/customs/302249/2480148',  # Same old format
+    r'gov\.cn/gzdt/',                      # gov.cn/gzdt: frequently 404
+    r'chinatax\.gov\.cn/chinatax/n810341',  # chinatax old path: JS-rendered (0 bytes to scripts)
+    r'manzhouli\.customs\.gov\.cn',         # customs subdomain: 412 WAF
+    r'gdfs\.customs\.gov\.cn',              # customs subdomain: 412 WAF
+    r'gkb\.customs\.gov\.cn',               # customs subdomain: 412 WAF
+    r'rjs\.customs\.gov\.cn',               # customs subdomain: 412 WAF
+    r'cws\.customs\.gov\.cn',               # customs subdomain: 412 WAF
+    r'fxs\.customs\.gov\.cn',               # customs subdomain: 412 WAF
+]
+
+def is_url_reliable(url):
+    """Check if a URL is likely to be accessible. Returns (is_reliable, reason)."""
+    import re as _re
+    for pattern in UNRELIABLE_URL_PATTERNS:
+        if _re.search(pattern, url):
+            return False, f"URL contains unreliable pattern: {pattern}"
+    # gov.cn/zhengceku URLs work in browser but return empty HTML to scripts
+    if 'gov.cn/zhengceku' in url or 'gov.cn/govweb' in url:
+        return False, "gov.cn/zhengceku URLs are JS-rendered (0 bytes to scripts)"
+    return True, "URL pattern looks reliable"
+
 ORG_MAP = {
     'GACC': {'org': 'GACC', 'orgCN': '海关总署', 'source': 'GACC'},
     'TCTC': {'org': 'TCTC', 'orgCN': '关税税则委员会', 'source': 'TCTC'},
