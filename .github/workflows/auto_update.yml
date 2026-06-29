@@ -54,7 +54,9 @@ jobs:
           git add index.html data/update_log.json
           COMMIT_MSG="🤖 Auto-update: new regulations detected - $(date +%Y-%m-%d)"
           git commit -m "$COMMIT_MSG" || echo "Commit failed, possibly empty"
-          git push origin gh-pages || echo "Push failed"
+          # Rebase on latest remote before pushing (handles concurrent manual edits)
+          git pull --rebase origin gh-pages || echo "Rebase failed, trying force push"
+          git push origin gh-pages || git push --force-with-lease origin gh-pages
 
       - name: Push update log even when no new regulations
         if: steps.run_update.outputs.has_changes == 'false'
@@ -65,7 +67,9 @@ jobs:
           if ! git diff --cached --quiet; then
             COMMIT_MSG="🤖 Auto-update: checked, no new regulations - $(date +%Y-%m-%d)"
             git commit -m "$COMMIT_MSG"
-            git push origin gh-pages || echo "Push failed"
+            # Rebase on latest remote before pushing
+            git pull --rebase origin gh-pages || echo "Rebase failed, trying force push"
+            git push origin gh-pages || git push --force-with-lease origin gh-pages
           else
             echo "No changes to commit (update_log unchanged)"
           fi
