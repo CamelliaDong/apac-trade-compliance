@@ -708,7 +708,12 @@ def scrape_tctc_announcements():
 
 
 def scrape_mofcom_announcements():
-    """Scrape MOFCOM policy releases for trade-related announcements."""
+    """Scrape MOFCOM policy releases for trade-related announcements.
+    
+    MOFCOM listing page format:
+      - 【分类】[Title Link](URL) YYYY-MM-DD
+    The date is in plain text right after the <a> link.
+    """
     new_regs = []
     print("[MOFCOM] Checking mofcom.gov.cn for new policies...")
     
@@ -719,28 +724,86 @@ def scrape_mofcom_announcements():
         return new_regs
     
     soup = BeautifulSoup(resp.text, 'html.parser')
-    links = soup.find_all('a', href=True)
     
-    for link in links:
+    # Find the main content area that contains the list of announcements
+    # The list is typically inside a div with class or id containing the links
+    content_area = soup.find('div', class_='content') or soup.find('div', id='content') or soup.find('main') or soup.find('body')
+    
+    if not content_area:
+        print("  [MOFCOM] Could not find content area")
+        return new_regs
+    
+    # Find all links and extract date from text immediately after each link
+    for link in content_area.find_all('a', href=True):
         href = link.get('href', '')
         title = link.get_text(strip=True)
         
+        # Skip if no title or no relevant keywords
+        if not title or len(title) < 5:
+            continue
+        
         # Look for trade/customs related announcements with 2026
         if not any(k in title for k in ['出口管制', '两用物项', '进出口', '贸易',
-                                          '关税', '配额', '禁止', '限制', '公告2026年']):
+                                          '关税', '配额', '禁止', '限制', '公告2026年',
+                                          '公示', '办法', '通知', '决定']):
             continue
-        if '2026' not in title:
+        if '2026' not in title and '公示' not in title and '办法' not in title:
             continue
         
         full_url = urljoin(url, href)
+        
+        # Extract publication date from text node immediately after the <a> tag
+        pub_date = ""
+        
+        # Method 1: Look at next sibling text nodes after this <a> tag
+        next_sibling = link.next_sibling
+        if next_sibling:
+            sibling_text = str(next_sibling).strip()
+            # MOFCOM format: " 2026-06-29" (date after link)
+            date_match = re.search(r'(\d{4})-(\d{1,2})-(\d{1,2})', sibling_text)
+            if date_match:
+                y, m, d = date_match.groups()
+                pub_date = f"{y}-{int(m):02d}-{int(d):02d}"
+        
+        # Method 2: If no date found via sibling, check parent's full text
+        if not pub_date:
+            parent_text = ""
+            if link.parent:
+                parent_text = link.parent.get_text(separator=' ', strip=True)
+                # The date is usually at the end, after the link text
+                # Pattern: "Title Text YYYY-MM-DD"
+                all_dates = re.findall(r'(\d{4}-\d{1,2}-\d{1,2})', parent_text)
+                if all_dates:
+                    # Take the last date found (usually it's the publication date)
+                    last_date = all_dates[-1]
+                    y_m_d = re.match(r'(\d{4})-(\d{1,2})-(\d{1,2})', last_date)
+                    if y_m_d:
+                        y, m, d = y_m_d.groups()
+                        pub_date = f"{y}-{int(m):02d}-{int(d):02d}"
+        
+        # Method 3: Extract from URL path as last resort
+        # URL format: /zcfb/zc/art/2026/art_xxx.html
+        if not pub_date:
+            url_date_match = re.search(r'/art/(\d{4})/art_', href)
+            if url_date_match:
+                pub_date = f"{url_date_match.group(1)}-01-01"
+                print(f"    [WARN] Using fallback date from URL path for: {title[:40]}")
+        
+        # Skip policy interpretation articles (/zcjd/ = 政策解读)
+        if '/zcjd/' in href or '/xwfb/' in href or '/tj/' in href or '/sjtj/' in href:
+            print(f"  [SKIP-non-regulation] {title[:50]} (URL path indicates non-regulation: {href})")
+            continue
+        
         new_regs.append({
             'source_type': 'MOFCOM',
             'numberCN_raw': title,
             'title_raw': title,
             'url': full_url,
+            'pub_date': pub_date,  # Publication date extracted from listing page
         })
     
-    print(f"  [MOFCOM] Found {len(new_regs)} potential announcements")
+    print(f"  [MOFCOM] Found {len(new_regs)} potential announcements "
+          f"(with dates: {sum(1 for r in new_regs if r.get('pub_date'))}/{len(new_regs)})")
     return new_regs
 
 
@@ -972,12 +1035,19 @@ def main():
         if not title:
             title = clean_title(reg.get('title_raw', reg.get('numberCN_raw', '')))
         
-        # Determine date
-        pub_date = reg.get('date', '')
+        # Determine date - PRIORITY ORDER:
+        # 1. pub_date (extracted from listing page, most accurate)
+        # 2. date field (if set by scraper)
+        # 3. extract_date_from_title_or_url() fallback
+        pub_date = reg.get('pub_date', '') or reg.get('date', '')
         if not pub_date:
             pub_date = extract_date_from_title_or_url(
                 reg.get('title_raw', ''), reg.get('url', '')
             )
+            if pub_date.endswith('-01-01'):
+                print(f"    [WARN] Using fallback date {pub_date} for: {title[:40]}")
+        else:
+            print(f"    [OK] Using listing page date: {pub_date}")
         
         # Determine category
         category = determine_category(title, reg.get('title_raw', ''))
