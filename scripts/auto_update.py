@@ -110,6 +110,73 @@ def is_url_reliable(url):
         return False, "gov.cn/zhengceku URLs are JS-rendered (0 bytes to scripts)"
     return True, "URL pattern looks reliable"
 
+
+# Non-regulation content patterns to reject
+# These are NOT formal regulatory announcements and should never be added
+NON_REGULATION_TITLE_PATTERNS = [
+    r'负责人解读',           # Policy interpretation by officials (解读)
+    r'解读[《]',             # Interpretation articles
+    r'^近日[，,]',           # News-style lead ("Recently, ...")
+    r'1[—\-—]\d+月.*总额',  # Monthly/quarterly statistics (e.g. "1-4月进出口总额")
+    r'进出口总额同[比增降]',  # Trade statistics with同比comparison
+    r'统计数据',             # Statistical data reports
+    r'新闻发布',             # Press releases
+    r'新闻发布会$',         # Press conference announcements
+    r'答记者问',             # Q&A with journalists
+    r'通稿$',               # Press releases (通稿)
+    r'情况通报$',           # Situation briefings (not regulations)
+]
+
+NON_REGULATION_URL_PATH_PATTERNS = [
+    r'/zcjd/',              # mofcom.gov.cn/zcjd/ = 政策解读 (interpretation)
+    r'/tj/',                # mofcom.gov.cn/tj/ = 统计数据 (statistics)
+    r'/xwfb/',              # mofcom.gov.cn/xwfb/ = 新闻发布 (press releases)
+    r'/sjtj/',              # mofcom.gov.cn/tj/sjtj/ = 统计数据 (statistics)
+    r'/ggl/',               # Some sites use /ggl/ for news
+]
+
+NON_REGULATION_DESCRIPTION_PATTERNS = [
+    r'分类：新闻',           # Content categorized as "news" in MOFCOM
+    r'分类：其它',           # Content categorized as "other" in MOFCOM
+    r'类型：原创分类：新闻',  # MOFCOM news format
+]
+
+
+def is_actual_regulation(title, url, description=""):
+    """Check if a scraped item is an actual regulatory announcement (not news/interpretation/stats).
+    
+    Returns (is_regulation, reason) tuple.
+    This filter prevents non-regulation content from being added to the tracker.
+    """
+    import re as _re
+    
+    # Check title patterns
+    for pattern in NON_REGULATION_TITLE_PATTERNS:
+        if _re.search(pattern, title):
+            return False, f"Title matches non-regulation pattern: {pattern}"
+    
+    # Check URL path patterns (MOFCOM content type indicators)
+    for pattern in NON_REGULATION_URL_PATH_PATTERNS:
+        if _re.search(pattern, url):
+            return False, f"URL path indicates non-regulation content: {pattern}"
+    
+    # Check description patterns (MOFCOM content categorization)
+    for pattern in NON_REGULATION_DESCRIPTION_PATTERNS:
+        if description and _re.search(pattern, description):
+            return False, f"Description indicates non-regulation content: {pattern}"
+    
+    # Check if title is too long (likely a full paragraph, not a regulation title)
+    # Normal regulation titles are < 80 chars; full-paragraph titles are news articles
+    if len(title) > 100:
+        return False, "Title exceeds 100 chars (likely a news article paragraph, not a regulation title)"
+    
+    # Check if title looks like truncated statistics data
+    if title.endswith('...') or title.endswith('…'):
+        # Truncated titles are usually from statistics feeds, not actual regulations
+        return False, "Title is truncated (likely statistics or summary data, not a regulation)"
+    
+    return True, "Content appears to be an actual regulatory announcement"
+
 ORG_MAP = {
     'GACC': {'org': 'GACC', 'orgCN': '海关总署', 'source': 'GACC'},
     'TCTC': {'org': 'TCTC', 'orgCN': '关税税则委员会', 'source': 'TCTC'},
@@ -151,6 +218,20 @@ def extract_existing_ids(html_content):
 def extract_existing_numberCNs(html_content):
     """Extract existing regulation numberCNs from index.html."""
     return set(re.findall(r'numberCN:\s*"([^"]+)"', html_content))
+
+
+def extract_existing_urls(html_content):
+    """Extract existing regulation URLs from index.html to prevent duplicate entries."""
+    # Match url field in BUILTIN_REGULATIONS entries
+    urls = set(re.findall(r'url:\s*"([^"]+)"', html_content))
+    # Also match supersededDetails URLs
+    urls.update(set(re.findall(r'supersededDetails.*?url:\s*"([^"]+)"', html_content, re.DOTALL)))
+    return urls
+
+
+def extract_existing_titles(html_content):
+    """Extract existing regulation titles from index.html to prevent duplicate entries."""
+    return set(re.findall(r'title:\s*"([^"]+)"', html_content))
 
 
 def get_max_numeric_id(html_content, prefix="2026-"):
@@ -781,8 +862,11 @@ def main():
     
     existing_ids = extract_existing_ids(html_content)
     existing_numberCNs = extract_existing_numberCNs(html_content)
+    existing_urls = extract_existing_urls(html_content)
+    existing_titles = extract_existing_titles(html_content)
     print(f"\nExisting regulations: {len(existing_ids)} entries")
     print(f"Existing numberCNs: {len(existing_numberCNs)} entries")
+    print(f"Existing URLs: {len(existing_urls)} entries")
     
     # Scrape all sources
     all_new = []
@@ -792,20 +876,53 @@ def main():
     all_new.extend(scrape_sta_announcements())
     all_new.extend(scrape_gov_cn_announcements())
     
-    # Filter out already-existing regulations
+    # Filter out already-existing regulations and non-regulation content
     truly_new = []
+    rejected_non_reg = []
+    rejected_dup = []
     for reg in all_new:
+        # --- Content type filter: reject non-regulation content ---
+        title = reg.get('title_raw', reg.get('title', reg.get('numberCN', '')))
+        url = reg.get('url', '')
+        # Try to get description from raw data for early filtering
+        desc_hint = reg.get('description', '')
+        is_reg, reg_reason = is_actual_regulation(title, url, desc_hint)
+        if not is_reg:
+            print(f"  [REJECT-NON-REG] {title[:60]} — {reg_reason}")
+            rejected_non_reg.append((title, reg_reason))
+            continue
+        
+        # --- Dedup check 1: numberCN ---
         numberCN = reg.get('numberCN', reg.get('numberCN_raw', ''))
         if numberCN and numberCN in existing_numberCNs:
+            print(f"  [SKIP-DUP-numberCN] {numberCN}")
+            rejected_dup.append((title, f"numberCN already exists: {numberCN}"))
             continue
-        # Also check by URL to avoid duplicates from different sources
-        url = reg.get('url', '')
+        
+        # --- Dedup check 2: URL against existing entries ---
+        if url and url in existing_urls:
+            print(f"  [SKIP-DUP-URL] {url[:80]}")
+            rejected_dup.append((title, f"URL already exists: {url[:60]}"))
+            continue
+        
+        # --- Dedup check 3: URL against other new entries in this batch ---
         if url and any(url == r.get('url', '') for r in truly_new):
+            print(f"  [SKIP-DUP-BATCH] {url[:80]}")
+            rejected_dup.append((title, f"URL duplicates another new entry in this batch"))
             continue
+        
+        # --- Dedup check 4: title against existing entries ---
+        clean_t = clean_title(title)
+        if clean_t and clean_t in existing_titles:
+            print(f"  [SKIP-DUP-title] {clean_t[:60]}")
+            rejected_dup.append((title, f"title already exists: {clean_t[:60]}"))
+            continue
+        
         truly_new.append(reg)
     
     print(f"\n{'=' * 60}")
-    print(f"Total found: {len(all_new)}, New: {len(truly_new)}")
+    print(f"Total found: {len(all_new)}, Rejected (non-reg): {len(rejected_non_reg)}, "
+          f"Rejected (dup): {len(rejected_dup)}, New: {len(truly_new)}")
     
     if not truly_new:
         print("No new regulations found. Exiting cleanly.")
@@ -815,10 +932,14 @@ def main():
             "run_result": "no_new",
             "total_existing": len(existing_ids),
             "total_found": len(all_new),
+            "rejected_non_regulation": len(rejected_non_reg),
+            "rejected_duplicates": len(rejected_dup),
             "new_found": 0,
             "new_added": 0,
             "needs_review": 0,
-            "entries": []
+            "entries": [],
+            "rejected_non_reg_details": [{"title": t, "reason": r} for t, r in rejected_non_reg],
+            "rejected_dup_details": [{"title": t, "reason": r} for t, r in rejected_dup],
         }
         log_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
         os.makedirs(log_dir, exist_ok=True)
@@ -930,6 +1051,8 @@ def main():
         "run_result": "success",
         "total_existing": len(existing_ids),
         "total_found": len(all_new),
+        "rejected_non_regulation": len(rejected_non_reg),
+        "rejected_duplicates": len(rejected_dup),
         "new_found": len(truly_new),
         "new_added": len(processed_entries),
         "needs_review": len(needs_review),
@@ -942,7 +1065,9 @@ def main():
                 "url": e['url']
             }
             for e in processed_entries
-        ]
+        ],
+        "rejected_non_reg_details": [{"title": t, "reason": r} for t, r in rejected_non_reg],
+        "rejected_dup_details": [{"title": t, "reason": r} for t, r in rejected_dup],
     }
     log_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     os.makedirs(log_dir, exist_ok=True)
