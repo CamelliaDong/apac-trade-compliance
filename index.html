@@ -1161,7 +1161,8 @@ body {
   margin-top: 4px;
 }
 
-.monitor-pending-list {
+.monitor-pending-list,
+.monitor-new-list {
   margin-bottom: 14px;
 }
 
@@ -1513,26 +1514,34 @@ body {
 
 <!-- Monitoring Dashboard -->
 <div class="monitor-panel" id="monitorPanel">
-  <h4>🤖 Auto-Update Dashboard</h4>
+  <h4>🤖 自动更新监控</h4>
   <div class="monitor-status-grid">
     <div class="monitor-status-card">
       <div class="status-value" id="monitorTotal">-</div>
-      <div class="status-label">Total Regulations</div>
+      <div class="status-label">法规总数</div>
     </div>
     <div class="monitor-status-card">
-      <div class="status-value" id="monitorPending" style="color:#d69e2e">-</div>
-      <div class="status-label">Pending Review</div>
+      <div class="status-value" id="monitorNewEntries" style="color:#38a169">-</div>
+      <div class="status-label">本次新增</div>
     </div>
   </div>
+
+  <!-- Last Run Summary -->
   <div class="monitor-last-run" id="monitorLastRun">
-    <div class="run-time">⏳ Loading...</div>
-    <div class="run-result">Fetching update log from GitHub</div>
+    <div class="run-time">⏳ 加载中...</div>
+    <div class="run-result">正在从 GitHub 获取更新日志</div>
   </div>
-  <div class="monitor-pending-list" id="monitorPendingList"></div>
+
+  <!-- New Entries from Latest Run -->
+  <div class="monitor-new-list" id="monitorNewList">
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">📋 最近一次运行发现的新法规：</div>
+    <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">⏳ 等待数据加载...</div>
+  </div>
+
   <div class="monitor-links">
-    <a href="https://github.com/CamelliaDong/apac-trade-compliance/actions/workflows/auto_update.yml" target="_blank">📊 Actions</a>
-    <a href="https://github.com/CamelliaDong/apac-trade-compliance/issues?q=is%3Aissue+state%3Aopen+label%3Aauto-detected" target="_blank">📋 Issues</a>
-    <a href="https://github.com/CamelliaDong/apac-trade-compliance" target="_blank">📂 Repo</a>
+    <a href="https://github.com/CamelliaDong/apac-trade-compliance/actions/workflows/auto_update.yml" target="_blank">📊 运行记录</a>
+    <a href="https://github.com/CamelliaDong/apac-trade-compliance/issues?q=is%3Aissue+state%3Aopen+label%3Aauto-detected" target="_blank">📋 待处理 Issue</a>
+    <a href="https://github.com/CamelliaDong/apac-trade-compliance" target="_blank">📂 仓库</a>
   </div>
 </div>
 
@@ -2889,45 +2898,82 @@ function toggleMonitorPanel() {
 }
 
 function loadMonitorData() {
-  // Count pending regulations
+  // Total regulations count
   const total = BUILTIN_REGULATIONS.length;
-  const pending = BUILTIN_REGULATIONS.filter(r => r.status === 'pending');
   document.getElementById('monitorTotal').textContent = total;
-  document.getElementById('monitorPending').textContent = pending.length;
 
-  // Render pending list
-  const listEl = document.getElementById('monitorPendingList');
-  if (pending.length === 0) {
-    listEl.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">✅ No pending regulations — all reviewed!</div>';
-  } else {
-    listEl.innerHTML = '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Regulations awaiting manual review:</div>' +
-      pending.map(r => `<div class="monitor-pending-item">
-        <span class="pending-badge">⏳</span>
-        <span class="pending-title">${r.title || r.numberCN}</span>
-        <a href="${r.url}" target="_blank" title="View source">🔗</a>
-      </div>`).join('');
-  }
+  // Default state: no data yet
+  const lastRunEl = document.getElementById('monitorLastRun');
+  const newListEl = document.getElementById('monitorNewList');
+  document.getElementById('monitorNewEntries').textContent = '0';
 
-  // Fetch update log from GitHub
+  lastRunEl.innerHTML =
+    `<div class="run-time" style="color:var(--text-muted)">ℹ️ 暂无运行数据</div>
+     <div class="run-result">GitHub Actions 可能尚未运行，或日志文件缺失。</div>`;
+
+  newListEl.innerHTML =
+    `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">📋 最近一次运行发现的新法规：</div>
+     <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">暂无新法规</div>`;
+
+  // Fetch update log from GitHub — THIS is what we actually want to monitor
   fetch('https://raw.githubusercontent.com/CamelliaDong/apac-trade-compliance/gh-pages/data/update_log.json')
     .then(r => r.ok ? r.json() : null)
     .then(data => {
-      if (data) {
-        const runTime = new Date(data.last_run);
-        const timeStr = runTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-        document.getElementById('monitorLastRun').innerHTML =
-          `<div class="run-time">✅ Last run: ${timeStr}</div>
-           <div class="run-result">Found ${data.new_found || 0} new, added ${data.new_added || 0} entries. ${data.needs_review || 0} need review.</div>`;
+      if (!data) return;
+
+      // Parse last run time
+      const runTime = new Date(data.last_run);
+      const timeStr = runTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+
+      // Update "new entries this run" counter
+      const newCount = data.new_added || data.entries?.length || 0;
+      document.getElementById('monitorNewEntries').textContent = newCount;
+
+      // Build run summary
+      let resultHtml = '';
+      if (data.run_result === 'success') {
+        resultHtml = `发现 ${data.total_found || 0} 条候选，新增 ${data.new_added || 0} 条，拒绝 ${((data.total_found || 0) - (data.new_added || 0))} 条（重复/非法规）`;
+      } else if (data.run_result === 'no_new') {
+        resultHtml = '本次未发现新法规';
       } else {
-        document.getElementById('monitorLastRun').innerHTML =
-          `<div class="run-time" style="color:var(--text-muted)">ℹ️ Update log not found</div>
-           <div class="run-result">GitHub Actions may not have run yet, or log file is missing.</div>`;
+        resultHtml = `运行结果: ${data.run_result || '未知'}`;
+      }
+
+      lastRunEl.innerHTML =
+        `<div class="run-time">✅ 最近运行: ${timeStr}</div>
+         <div class="run-result">${resultHtml}</div>`;
+
+      // Render NEW entries list (from update_log, NOT from pending status!)
+      const entries = data.entries || [];
+      if (entries.length === 0) {
+        newListEl.innerHTML =
+          `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">📋 最近一次运行发现的新法规：</div>
+           <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">✅ 本次无新增法规</div>`;
+      } else {
+        const catColors = {
+          'Tariff': '#2d5be3', 'Export Control': '#e53e3e',
+          'AEO / Enterprise': '#38a169', 'Customs Supervision': '#dd6b20',
+          'Bonded / FTZ': '#805ad5', 'Export Tax Refund': '#d69e2e',
+          'Inspection & Quarantine': '#319795'
+        };
+
+        newListEl.innerHTML =
+          '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">📋 最近一次运行发现的新法规 (' + entries.length + ' 条)：</div>' +
+          entries.map(e => {
+            const color = catColors[e.category] || 'var(--text-secondary)';
+            const title = e.title || e.numberCN || e.id;
+            return `<div class="monitor-pending-item">
+              <span class="new-entry-cat" style="background:${color}20;color:${color};border:1px solid ${color}40;font-size:9px;padding:1px 5px;border-radius:4px;white-space:nowrap;">${e.category || '?'}</span>
+              <span class="pending-title">${title}</span>
+              <a href="${e.url}" target="_blank" title="查看原文">🔗</a>
+            </div>`;
+          }).join('');
       }
     })
     .catch(() => {
-      document.getElementById('monitorLastRun').innerHTML =
-        `<div class="run-time" style="color:var(--accent-orange)">⚠️ Could not fetch update log</div>
-         <div class="run-result">Check GitHub Actions page directly.</div>`;
+      lastRunEl.innerHTML =
+        `<div class="run-time" style="color:var(--accent-orange)">⚠️ 无法获取更新日志</div>
+         <div class="run-result">请检查网络或直接访问 GitHub Actions 页面。</div>`;
     });
 }
 
