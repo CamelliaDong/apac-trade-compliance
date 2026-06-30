@@ -3628,9 +3628,8 @@ async function fetchLatestRegulations() {
   // Re-render
   renderAll();
 
-  const now = new Date();
-  const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  document.getElementById('lastUpdate').textContent = `Last update: ${timeStr} ${newCount > 0 ? '('+newCount+' new)' : '(data current)'}`;
+  // Update last-update from actual scraper run time (not page load time)
+  fetchAndDisplayLastUpdate();
 
   hideToast();
 }
@@ -3651,6 +3650,25 @@ function renderAll() {
   renderMonthlyBars();
   renderTimeline();
   renderAnimTrack();
+}
+
+function fetchAndDisplayLastUpdate() {
+  const el = document.getElementById('lastUpdate');
+  fetch('https://raw.githubusercontent.com/CamelliaDong/apac-trade-compliance/gh-pages/data/update_log.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (data && data.last_run) {
+        const runTime = new Date(data.last_run);
+        const timeStr = runTime.toLocaleString('en-US', { timeZone: 'Asia/Shanghai', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+        const status = data.new_added > 0 ? `(${data.new_added} new)` : '(data current)';
+        el.textContent = `Last update: ${timeStr} ${status}`;
+      } else {
+        el.textContent = 'Last update: Waiting for first scrape...';
+      }
+    })
+    .catch(() => {
+      el.textContent = 'Last update: Unable to fetch';
+    });
 }
 
 function init() {
@@ -3678,6 +3696,7 @@ function init() {
 
   // Initial fetch
   fetchLatestRegulations();
+  fetchAndDisplayLastUpdate();  // Show actual scraper run time, not page load time
 
   // Auto-refresh every 6 hours
   setInterval(fetchLatestRegulations, 6 * 60 * 60 * 1000);
