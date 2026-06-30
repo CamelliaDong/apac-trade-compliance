@@ -850,7 +850,19 @@ def scrape_mofcom_announcements():
         # Skip if no title or no relevant keywords
         if not title or len(title) < 5:
             continue
-        
+
+        # Parse numberCN from title (e.g., "商务部公告2026年第26号 公布关于..." → 商务部公告2026年第26号)
+        num_match = re.search(r'(商务部公告\d{4}年第\d+号)', title)
+        if not num_match:
+            continue
+        numberCN = num_match.group(1)
+        # Extract year for completeness
+        year_match = re.search(r'(\d{4})年第(\d+)号', numberCN)
+        if not year_match:
+            continue
+        ann_year = year_match.group(1)
+        ann_num = year_match.group(2)
+
         # Look for trade/customs related announcements with 2026
         if not any(k in title for k in ['出口管制', '两用物项', '进出口', '贸易',
                                           '关税', '配额', '禁止', '限制', '公告2026年',
@@ -906,6 +918,7 @@ def scrape_mofcom_announcements():
         new_regs.append({
             'source_type': 'MOFCOM',
             'numberCN_raw': title,
+            'numberCN': f'商务部公告{ann_year}年第{ann_num}号',  # CRITICAL: must match existing entry format
             'title_raw': title,
             'url': full_url,
             'pub_date': pub_date,  # Publication date extracted from listing page
@@ -1075,7 +1088,15 @@ def main():
             continue
 
         # --- Dedup check 1: numberCN (exact match) ---
-        numberCN = reg.get('numberCN', reg.get('numberCN_raw', ''))
+        # Fallback: if numberCN not set but numberCN_raw is, extract it
+        numberCN = reg.get('numberCN', '')
+        if not numberCN:
+            numberCN = reg.get('numberCN_raw', '')
+            # Try to extract pure announcement number (e.g., "商务部公告2026年第26号") from raw title
+            extracted = re.search(r'((?:商务部|海关总署|国家税务总局|国务院)\s*公告\s*\d{4}年第\s*\d+\s*号)', numberCN)
+            if extracted:
+                numberCN = re.sub(r'\s+', '', extracted.group(1))  # remove whitespace
+                reg['numberCN'] = numberCN  # cache for downstream
         if numberCN and numberCN in existing_numberCNs:
             print(f"  [SKIP-DUP-numberCN] {numberCN}")
             rejected_dup.append((title, f"numberCN already exists: {numberCN}"))
