@@ -27,5 +27,33 @@
       "title": "商务部公告2026年第24号 公布《产业链供应链安全调查工作办法》",
       "reason": "numberCN already exists: 商务部公告2026年第24号"
     }
-  ]
+  ],
+  "learnings": {
+    "last_human_corrections": [
+      "2026-06-30: 删除 2026-040（MOFCOM #26与2026-034重复）— numberCN相同但爬虫未设numberCN字段",
+      "2026-06-30: 删除 GACC #82/84/86（干坚果、龙眼干、饲料）— 农业类IQ不应收录",
+      "2026-06-30: 删除12条自动检测垃圾条目（解读/统计/新闻稿×3 + 重复×9）",
+      "2026-06-29: AI审核误改pending→active + 误删3条 — 已加5条红线禁止操作"
+    ],
+    "problematic_url_patterns": [
+      "customs.gov.cn/customs/YYYY-MM/DD/ — 通讯稿URL，非正式公告格式",
+      "mofcom.gov.cn/zcjd/ — 政策解读频道，非法规",
+      "mofcom.gov.cn/xwfb/ — 新闻发布，非法规",
+      "mofcom.gov.cn/tj/ 或 /sjtj/ — 统计数据，非法规"
+    ],
+    "recurring_mistakes": [
+      "MOFCOM爬虫的numberCN字段从title解析，部分条目未设置导致去重失败",
+      "爬虫用'GACC Announcement 2026 No.XX'作为number — 应为'海关总署公告2026年第XX号'",
+      "有效日期为2026-01-01的条目需检查是否为日期提取失败",
+      "description含'来源：XX司类型：原创YYYY-MM-DD HH:MM'为未处理的原始抓取文本"
+    ],
+    "dedup_rules_effective": [
+      "numberCN精确匹配 — 有效拦截同编号重复",
+      "URL去重 — 有效拦截同链接重复",
+      "通讯稿URL模式过滤 — 有效拦截海关新闻稿",
+      "5类内容过滤 — 有效拦截解读/统计/新闻/农业类"
+    ],
+    "last_run_date": "2026-06-30",
+    "last_run_errors": []
+  }
 }
