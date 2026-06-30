@@ -21,9 +21,15 @@
       "notes": []
     },
     "2026-STA03": {
-      "tags": [],
+      "tags": [
+        {
+          "text": "hi",
+          "author": "Camellia",
+          "createdAt": "2026-06-30T08:33:14.715Z"
+        }
+      ],
       "notes": []
     }
   },
-  "lastUpdated": "2026-06-30T08:33:10.814Z"
+  "lastUpdated": "2026-06-30T08:33:14.715Z"
 }
