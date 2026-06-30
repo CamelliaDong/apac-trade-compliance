@@ -617,16 +617,40 @@ def insert_regulations_into_html(html_content, new_entries):
 
 def scrape_gacc_announcements():
     """Scrape GACC announcement listing page for 2026 regulations.
-    Uses customs.gov.cn as primary, gov.cn search as fallback."""
+    Uses customs.gov.cn as primary, gov.cn search as fallback.
+
+    IMPORTANT — IQ category filter (2026-06-30 user policy):
+    Skip agricultural product entry regulations (animal feed, fruits, nuts,
+    vegetables, grains). Only keep technical/industrial IQ regulations
+    (e.g. equipment inspection, lab standards, system management).
+    """
+    # Keywords that indicate agricultural product entry regulations
+    # These are NOT technical IQ regulations — skip them
+    AGRICULTURAL_KEYWORDS = [
+        '配合饲料', '饲料', '鱼粉', '鱼油', '宠物食品',
+        '龙眼', '荔枝', '香蕉', '柑橘', '橙', '苹果', '梨', '桃', '樱桃',
+        '芒果', '火龙果', '葡萄', '猕猴桃', '草莓', '蓝莓', '榴莲', '椰子',
+        '干坚果', '坚果', '腰果', '开心果', '扁桃仁', '核桃', '杏仁', '榛子',
+        '李子干', '杏干', '葡萄干', '枣',
+        '蔬菜', '马铃薯', '番茄', '洋葱', '大蒜',
+        '大米', '小麦', '玉米', '大豆', '高粱', '大麦', '燕麦', '荞麦',
+        '茶叶', '咖啡豆', '可可豆',
+        '牛肉', '猪肉', '鸡肉', '鸭肉', '羊肉', '兔肉', '水产', '虾', '蟹',
+        '奶制品', '乳制品', '奶粉', '黄油', '奶酪',
+        '蛋', '蜂蜜', '蜂产品',
+        '辣椒', '调味品',
+        '食用', '食品', '粮食',
+    ]
+
     new_regs = []
     print("[GACC] Checking customs.gov.cn for new announcements...")
-    
+
     # Primary: customs.gov.cn announcement listing
     urls = [
         "http://www.customs.gov.cn/customs/302249/2480148/index.html",
         "http://www.customs.gov.cn/customs/302249/302266/302267/index.html",
     ]
-    
+
     for url in urls:
         resp = fetch(url)
         if resp:
@@ -635,21 +659,26 @@ def scrape_gacc_announcements():
             for link in links:
                 href = link.get('href', '')
                 title = link.get_text(strip=True)
-                
+
                 if '2026' not in title:
                     continue
-                
+
                 match = re.search(r'公告2026年第(\d+)号', title)
                 if not match:
                     continue
-                
+
+                # --- IQ filter: skip agricultural product entry regulations ---
+                if any(kw in title for kw in AGRICULTURAL_KEYWORDS):
+                    print(f"  [GACC-SKIP-AGRI] {title[:60]} — agricultural product entry, not technical IQ")
+                    continue
+
                 ann_num = match.group(1)
                 full_url = urljoin(url, href)
-                
+
                 # Ensure URL starts with http
                 if not full_url.startswith('http'):
                     full_url = "http://www.customs.gov.cn" + full_url
-                
+
                 new_regs.append({
                     'source_type': 'GACC',
                     'numberCN': f'海关总署公告2026年第{ann_num}号',
@@ -658,7 +687,7 @@ def scrape_gacc_announcements():
                     'ann_num': ann_num,
                 })
             break  # If first URL works, skip second
-    
+
     # Fallback: gov.cn search for GACC announcements
     if not new_regs:
         print("[GACC] Primary source failed, trying gov.cn mirror...")
@@ -670,16 +699,21 @@ def scrape_gacc_announcements():
             for link in links:
                 href = link.get('href', '')
                 title = link.get_text(strip=True)
-                
+
                 match = re.search(r'公告2026年第(\d+)号', title)
                 if not match:
                     continue
-                
+
+                # --- IQ filter: skip agricultural product entry regulations ---
+                if any(kw in title for kw in AGRICULTURAL_KEYWORDS):
+                    print(f"  [GACC-SKIP-AGRI] {title[:60]} — agricultural product entry, not technical IQ")
+                    continue
+
                 ann_num = match.group(1)
                 full_url = urljoin(search_url, href)
                 if not full_url.startswith('http'):
                     full_url = "https://www.gov.cn" + full_url
-                
+
                 new_regs.append({
                     'source_type': 'GACC',
                     'numberCN': f'海关总署公告2026年第{ann_num}号',
