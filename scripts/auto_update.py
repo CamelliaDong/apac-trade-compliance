@@ -1137,6 +1137,16 @@ def main():
     if not truly_new:
         print("No new regulations found. Exiting cleanly.")
         # Still update the log for monitoring dashboard
+        # Preserve existing learnings if present
+        existing_learnings = {}
+        old_log_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'update_log.json')
+        if os.path.exists(old_log_path):
+            try:
+                with open(old_log_path, 'r', encoding='utf-8') as f:
+                    old_log = json.load(f)
+                existing_learnings = old_log.get('learnings', {})
+            except: pass
+        
         update_log = {
             "last_run": datetime.now().isoformat(),
             "run_result": "no_new",
@@ -1150,6 +1160,7 @@ def main():
             "entries": [],
             "rejected_non_reg_details": [{"title": t, "reason": r} for t, r in rejected_non_reg],
             "rejected_dup_details": [{"title": t, "reason": r} for t, r in rejected_dup],
+            "learnings": existing_learnings,  # Preserve AI feedback loop learnings
         }
         log_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
         os.makedirs(log_dir, exist_ok=True)
@@ -1264,6 +1275,16 @@ def main():
     print(f"✅ Updated index.html with {len(processed_entries)} new regulations")
     
     # Create update log for monitoring dashboard
+    # Preserve existing learnings if present
+    existing_learnings = {}
+    old_log_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'update_log.json')
+    if os.path.exists(old_log_path):
+        try:
+            with open(old_log_path, 'r', encoding='utf-8') as f:
+                old_log = json.load(f)
+            existing_learnings = old_log.get('learnings', {})
+        except: pass
+    
     update_log = {
         "last_run": datetime.now().isoformat(),
         "run_result": "success",
@@ -1286,6 +1307,7 @@ def main():
         ],
         "rejected_non_reg_details": [{"title": t, "reason": r} for t, r in rejected_non_reg],
         "rejected_dup_details": [{"title": t, "reason": r} for t, r in rejected_dup],
+        "learnings": existing_learnings,  # Preserve AI feedback loop learnings
     }
     log_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     os.makedirs(log_dir, exist_ok=True)
