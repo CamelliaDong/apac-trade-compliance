@@ -220,6 +220,27 @@ def extract_existing_numberCNs(html_content):
     return set(re.findall(r'numberCN:\s*"([^"]+)"', html_content))
 
 
+def normalize_numberCN(numberCN):
+    """Normalize a numberCN for dedup comparison.
+    
+    Strips whitespace, full-width spaces, and standardizes separators so that
+    '商务部公告2026年第26号' == '商务部公告 2026 年第 26 号' == '商务部公告2026年第26号'
+    """
+    if not numberCN:
+        return ''
+    import re as _re
+    # Remove all whitespace (including full-width space \u3000)
+    norm = _re.sub(r'[\s\u3000]+', '', numberCN)
+    # Standardize Chinese comma 、 between org and "公告"
+    return norm
+
+
+def extract_existing_numberCNs_normalized(html_content):
+    """Extract normalized numberCNs for fuzzy dedup."""
+    raw = extract_existing_numberCNs(html_content)
+    return {normalize_numberCN(n) for n in raw if n}
+
+
 def extract_existing_urls(html_content):
     """Extract existing regulation URLs from index.html to prevent duplicate entries."""
     # Match url field in BUILTIN_REGULATIONS entries
@@ -229,9 +250,63 @@ def extract_existing_urls(html_content):
     return urls
 
 
+def extract_existing_press_release_urls(html_content):
+    """Extract URLs that match the press-release pattern (customs.gov.cn/YYYY-MM/DD/).
+    
+    These are NOT formal regulation URLs — they're news/press release pages.
+    Used to detect and reject entries scraped from such URLs.
+    """
+    urls = set()
+    for url in extract_existing_urls(html_content):
+        # Match customs.gov.cn/YYYY-MM/DD/ pattern (press release)
+        if re.search(r'customs\.gov\.cn/\d{4}-\d{2}/\d{2}/', url):
+            urls.add(url)
+    return urls
+
+
+def is_press_release_url(url):
+    """Check if a URL is a press-release-style URL (not a formal regulation).
+    
+    Customs uses multiple URL patterns:
+    - customs.gov.cn/customs/302249/.../article_XXX.html  (formal regulation listing)
+    - customs.gov.cn/customs/YYYY-MM/DD/article_XXX.html  (press release, NOT a regulation)
+    - customs.gov.cn/YYYY-MM/DD/article_XXX.html  (press release variant)
+    - mofcom.gov.cn/zcjd/...  (policy interpretation, not regulation)
+    - mofcom.gov.cn/xwfb/...  (news release, not regulation)
+    - mofcom.gov.cn/tj/...  (statistics, not regulation)
+    """
+    if not url:
+        return False
+    # customs.gov.cn/YYYY-MM/DD/ pattern (press release)
+    if re.search(r'customs\.gov\.cn/(?:customs/)?\d{4}-\d{2}/\d{2}/', url):
+        return True
+    # MOFCOM non-regulation paths
+    if re.search(r'mofcom\.gov\.cn/(zcjd|xwfb|tj|sjtj)/', url):
+        return True
+    return False
+
+
 def extract_existing_titles(html_content):
     """Extract existing regulation titles from index.html to prevent duplicate entries."""
     return set(re.findall(r'title:\s*"([^"]+)"', html_content))
+
+
+def is_auto_detected_marker(text):
+    """Check if a description text is just a placeholder marker (e.g. '自动检测，待人工核实').
+    
+    Such markers should NEVER be added as a regulation's description — they are
+    metadata indicating the entry was not properly verified.
+    """
+    if not text:
+        return False
+    markers = [
+        '自动检测，待人工核实',
+        '自动检测',
+        '待人工核实',
+        'auto-detected, pending verification',
+        'auto-detected',
+    ]
+    return any(m in text for m in markers)
 
 
 def get_max_numeric_id(html_content, prefix="2026-"):
@@ -925,11 +1000,14 @@ def main():
     
     existing_ids = extract_existing_ids(html_content)
     existing_numberCNs = extract_existing_numberCNs(html_content)
+    existing_numberCNs_norm = extract_existing_numberCNs_normalized(html_content)
     existing_urls = extract_existing_urls(html_content)
+    existing_press_release_urls = extract_existing_press_release_urls(html_content)
     existing_titles = extract_existing_titles(html_content)
     print(f"\nExisting regulations: {len(existing_ids)} entries")
-    print(f"Existing numberCNs: {len(existing_numberCNs)} entries")
-    print(f"Existing URLs: {len(existing_urls)} entries")
+    print(f"Existing numberCNs: {len(existing_numberCNs)} entries (normalized: {len(existing_numberCNs_norm)})")
+    print(f"Existing URLs: {len(existing_urls)} entries (press-release: {len(existing_press_release_urls)})")
+    print(f"Existing titles: {len(existing_titles)} entries")
     
     # Scrape all sources
     all_new = []
@@ -954,33 +1032,47 @@ def main():
             print(f"  [REJECT-NON-REG] {title[:60]} — {reg_reason}")
             rejected_non_reg.append((title, reg_reason))
             continue
-        
-        # --- Dedup check 1: numberCN ---
+
+        # --- Reject press-release-style URLs (NOT formal regulations) ---
+        # customs.gov.cn/YYYY-MM/DD/ pattern = press release, not regulation
+        if is_press_release_url(url):
+            print(f"  [REJECT-PRESS-RELEASE] {title[:60]} — URL is press release, not regulation: {url[:80]}")
+            rejected_non_reg.append((title, f"press release URL: {url[:60]}"))
+            continue
+
+        # --- Dedup check 1: numberCN (exact match) ---
         numberCN = reg.get('numberCN', reg.get('numberCN_raw', ''))
         if numberCN and numberCN in existing_numberCNs:
             print(f"  [SKIP-DUP-numberCN] {numberCN}")
             rejected_dup.append((title, f"numberCN already exists: {numberCN}"))
             continue
-        
+
+        # --- Dedup check 1b: numberCN (normalized match, catches whitespace/format variants) ---
+        numberCN_norm = normalize_numberCN(numberCN)
+        if numberCN_norm and numberCN_norm in existing_numberCNs_norm:
+            print(f"  [SKIP-DUP-numberCN-norm] {numberCN}")
+            rejected_dup.append((title, f"numberCN (normalized) already exists: {numberCN}"))
+            continue
+
         # --- Dedup check 2: URL against existing entries ---
         if url and url in existing_urls:
             print(f"  [SKIP-DUP-URL] {url[:80]}")
             rejected_dup.append((title, f"URL already exists: {url[:60]}"))
             continue
-        
+
         # --- Dedup check 3: URL against other new entries in this batch ---
         if url and any(url == r.get('url', '') for r in truly_new):
             print(f"  [SKIP-DUP-BATCH] {url[:80]}")
             rejected_dup.append((title, f"URL duplicates another new entry in this batch"))
             continue
-        
+
         # --- Dedup check 4: title against existing entries ---
         clean_t = clean_title(title)
         if clean_t and clean_t in existing_titles:
             print(f"  [SKIP-DUP-title] {clean_t[:60]}")
             rejected_dup.append((title, f"title already exists: {clean_t[:60]}"))
             continue
-        
+
         truly_new.append(reg)
     
     print(f"\n{'=' * 60}")
@@ -1070,14 +1162,15 @@ def main():
             if desc and len(desc) > 20:
                 description = desc
             else:
-                description = f"\u201c自动检测，待人工核实\u201d{title}"
-                auto_detected = True
+                # REJECT: do not add entries with only placeholder descriptions.
+                # Mark as needs_review and skip insertion entirely.
+                print(f"    [REJECT-NO-DESC] {title[:40]} — detail page fetch returned < 20 chars")
                 needs_review.append(reg)
+                continue
         except Exception as e:
-            print(f"    [WARN] Could not fetch detail: {e}")
-            description = f"\u201c自动检测，待人工核实\u201d{title}"
-            auto_detected = True
+            print(f"    [REJECT-NO-DESC] {title[:40]} — fetch error: {e}")
             needs_review.append(reg)
+            continue
         
         # Build complete entry
         entry = {
