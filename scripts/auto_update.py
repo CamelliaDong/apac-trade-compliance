@@ -54,6 +54,12 @@ CATEGORY_KEYWORDS = {
                           '境外生产企业注册'],
     'Bonded / FTZ': ['保税', '自贸区', '自贸港', '零关税进境', '综合保税',
                       '跨境区', '离岛免税'],
+    # Trade Remedies MUST come before Tariff: anti-dumping/countervailing
+    # announcements often mention "关税" (e.g. 反倾销税) in their text but
+    # are trade-defense proceedings, not tariff policy. Match remedy keywords first.
+    'Trade Remedies': ['反倾销', '反补贴', '保障措施', '反规避',
+                        '倾销调查', '补贴调查', '贸易救济',
+                        'anti-dumping', 'countervailing', 'safeguard'],
     'Tariff': ['关税', '税则', '税率', '暂定税率', '协定税率',
                '零关税', '进口税收', '加征关税', '关税调整',
                '原产地管理', '原产地规则', '优惠原产地',
@@ -69,6 +75,7 @@ CATEGORY_CN_MAP = {
     'Export Control': '出口管制',
     'AEO / Enterprise': '企业管理',
     'Bonded / FTZ': '保税/自贸区',
+    'Trade Remedies': '贸易救济',
     'Tariff': '关税税率',
     'Inspection & Quarantine': '检验检疫',
     'Customs Supervision': '监管通关',
@@ -76,6 +83,7 @@ CATEGORY_CN_MAP = {
 
 CATEGORY_EMOJI_MAP = {
     'Tariff': '💰',
+    'Trade Remedies': '⚖️',
     'Export Control': '🔒',
     'AEO / Enterprise': '🏢',
     'Customs Supervision': '🛃',
