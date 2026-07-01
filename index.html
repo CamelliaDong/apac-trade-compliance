@@ -1379,6 +1379,7 @@ body {
       <button class="filter-btn" data-filter="org" data-value="MOFCOM">MOFCOM</button>
       <button class="filter-btn" data-filter="org" data-value="SCIO">SC / Gov.cn</button>
       <button class="filter-btn" data-filter="org" data-value="STA">STA</button>
+      <button class="filter-btn" data-filter="org" data-value="SAFE">SAFE</button>
     </div>
     <div class="filter-group">
       <span class="label">Category:</span>
@@ -1391,6 +1392,7 @@ body {
       <button class="filter-btn" data-filter="category" data-value="Bonded / FTZ">🏗️ Bonded / FTZ</button>
       <button class="filter-btn" data-filter="category" data-value="Export Tax Refund">💸 Export Tax Refund</button>
       <button class="filter-btn" data-filter="category" data-value="Inspection & Quarantine">🔬 Inspection & Quarantine</button>
+      <button class="filter-btn" data-filter="category" data-value="FX Management">💱 FX Management</button>
     </div>
     <div class="filter-group">
       <span class="label">Status:</span>
@@ -1426,6 +1428,7 @@ body {
       <div class="legend-item"><span class="legend-dot" style="background:#805ad5"></span> 🏗️ Bonded / FTZ (保税/自贸区)</div>
       <div class="legend-item"><span class="legend-dot" style="background:#d69e2e"></span> 💸 Export Tax Refund (出口退税)</div>
       <div class="legend-item"><span class="legend-dot" style="background:#319795"></span> 🔬 Inspection & Quarantine (检验检疫)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#0d9488"></span> 💱 FX Management (外汇管理)</div>
     </div>
     <div class="sidebar-card">
       <h3>🏛️ Source Legend</h3>
@@ -1434,6 +1437,7 @@ body {
       <div class="legend-item"><span class="legend-dot" style="background:var(--accent-teal)"></span> MOFCOM (商务部)</div>
       <div class="legend-item"><span class="legend-dot" style="background:var(--accent-cyan)"></span> SC / Gov.cn (国务院/中国政府网)</div>
       <div class="legend-item"><span class="legend-dot" style="background:var(--accent-gold)"></span> STA (国家税务总局)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--accent-rose)"></span> SAFE (国家外汇管理局)</div>
     </div>
   </aside>
 
@@ -1468,7 +1472,7 @@ body {
     <div class="update-section">
       <h3>🔄 Data Sources & Updates</h3>
       <div class="update-info">
-        <p>This system tracks <strong>Tariff</strong>, <strong>Trade Remedies</strong>, <strong>Export Control</strong>, <strong>AEO / Enterprise Management</strong>, <strong>Customs Supervision</strong>, <strong>Bonded / FTZ</strong>, <strong>Export Tax Refund</strong>, and <strong>Inspection &amp; Quarantine</strong> regulations.</p>
+        <p>This system tracks <strong>Tariff</strong>, <strong>Trade Remedies</strong>, <strong>Export Control</strong>, <strong>AEO / Enterprise Management</strong>, <strong>Customs Supervision</strong>, <strong>Bonded / FTZ</strong>, <strong>Export Tax Refund</strong>, <strong>Inspection &amp; Quarantine</strong>, and <strong>FX Management</strong> regulations.</p>
         <p style="margin-top:6px;">Data Sources:</p>
         <ul style="margin-left:18px;margin-top:4px;">
           <li><a href="http://www.customs.gov.cn/customs/302249/2480148/index.html" target="_blank">GACC Announcements (海关总署公告专栏)</a></li>
@@ -2608,8 +2612,8 @@ const BUILTIN_REGULATIONS = [
     effectiveDate: "2026-03-28",
     org: "SAFE",
     orgCN: "国家外汇管理局",
-    category: "Customs Supervision",
-    categoryCN: "监管通关",
+    category: "FX Management",
+    categoryCN: "外汇管理",
     status: "effective",
     description: "国家外汇管理局决定进一步扩大跨境贸易高水平开放试点范围并提升试点质量，新增多个试点地区，便利优质企业经常项目外汇收支，简化单证审核流程，推动外汇服务实体经济。",
     supersedes: [],
@@ -2626,8 +2630,8 @@ const BUILTIN_REGULATIONS = [
     effectiveDate: "2026-04-15",
     org: "SAFE",
     orgCN: "国家外汇管理局",
-    category: "Customs Supervision",
-    categoryCN: "监管通关",
+    category: "FX Management",
+    categoryCN: "外汇管理",
     status: "effective",
     description: "中国人民银行与国家外汇管理局联合发布，调整银行业金融机构境外贷款业务管理要求，优化跨境融资宏观审慎管理参数，简化境外放款登记流程，支持企业跨境经营。",
     supersedes: [],
@@ -3000,7 +3004,7 @@ function loadMonitorData() {
           'Tariff': '#2d5be3', 'Trade Remedies': '#97266d', 'Export Control': '#e53e3e',
           'AEO / Enterprise': '#38a169', 'Customs Supervision': '#dd6b20',
           'Bonded / FTZ': '#805ad5', 'Export Tax Refund': '#d69e2e',
-          'Inspection & Quarantine': '#319795'
+          'Inspection & Quarantine': '#319795', 'FX Management': '#0d9488'
         };
 
         newListEl.innerHTML =
@@ -3204,11 +3208,12 @@ function orgColorHex(org) {
   if (org === 'STA') return '#d69e2e';
   return '#2d5be3';
 }
-function catIcon(cat) { return {'Tariff':'💰','Trade Remedies':'⚖️','Export Control':'🔒','AEO / Enterprise':'🏢','Customs Supervision':'🛃','Bonded / FTZ':'🏗️','Export Tax Refund':'💸','Inspection & Quarantine':'🔬'}[cat]||'📋'; }
+function catIcon(cat) { return {'Tariff':'💰','Trade Remedies':'⚖️','Export Control':'🔒','AEO / Enterprise':'🏢','Customs Supervision':'🛃','Bonded / FTZ':'🏗️','Export Tax Refund':'💸','Inspection & Quarantine':'🔬','FX Management':'💱'}[cat]||'📋'; }
 function sourceBadge(source) {
   if (source === 'Gov.cn') return '<span class="badge badge-source">Gov.cn</span>';
   if (source === 'TCTC') return '<span class="badge badge-source" style="background:#805ad5;color:#fff">TCTC</span>';
   if (source === 'STA') return '<span class="badge badge-source" style="background:#d69e2e;color:#fff">STA</span>';
+  if (source === 'SAFE') return '<span class="badge badge-source" style="background:#e11d48;color:#fff">SAFE</span>';
   return '';
 }
 
