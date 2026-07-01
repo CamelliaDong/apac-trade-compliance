@@ -2680,36 +2680,36 @@ async function fetchSharedAnnotations() {
 }
 
 function mergeAnnotations(remoteData) {
-  // Merge remote data into sharedAnnotations, keeping local-only entries too
+  // Merge remote data into sharedAnnotations.
+  // RULE: In-memory sharedAnnotations is authoritative for deletions.
+  // If we already have a regulation entry in memory (even if empty tags/notes),
+  // remote data does NOT overwrite it — because the user may have just deleted
+  // something and the push hasn't synced yet. Remote only fills in entries
+  // that don't exist at all in local memory.
   const merged = {};
-  // Start with all remote entries
-  for (const id in remoteData) {
-    merged[id] = { tags: [...(remoteData[id].tags || [])], notes: [...(remoteData[id].notes || [])] };
-  }
-  // Merge in local-only annotations from localStorage
+  
+  // First: copy local (in-memory) state as the authoritative base
   for (const id in sharedAnnotations) {
-    if (!merged[id]) {
-      merged[id] = { tags: [...(sharedAnnotations[id].tags || [])], notes: [...(sharedAnnotations[id].notes || [])] };
-    } else {
-      // Merge tags (dedupe by text)
-      const existingTagTexts = new Set(merged[id].tags.map(t => t.text));
-      for (const t of (sharedAnnotations[id].tags || [])) {
-        if (!existingTagTexts.has(t.text)) {
-          merged[id].tags.push(t);
-          existingTagTexts.add(t.text);
-        }
-      }
-      // Merge notes (dedupe by text+author+timestamp)
-      const existingNoteKeys = new Set(merged[id].notes.map(n => `${n.text}|${n.author}|${n.createdAt}`));
-      for (const n of (sharedAnnotations[id].notes || [])) {
-        const key = `${n.text}|${n.author}|${n.createdAt}`;
-        if (!existingNoteKeys.has(key)) {
-          merged[id].notes.push(n);
-          existingNoteKeys.add(key);
-        }
-      }
-    }
+    merged[id] = {
+      tags: [...(sharedAnnotations[id].tags || [])],
+      notes: [...(sharedAnnotations[id].notes || [])]
+    };
   }
+  
+  // Then: add remote entries that don't exist locally AT ALL
+  // (Do NOT merge into existing entries — local deletions are authoritative)
+  for (const id in remoteData) {
+    if (!merged[id]) {
+      // This regulation has no local annotations → safe to take remote
+      merged[id] = {
+        tags: [...(remoteData[id].tags || [])],
+        notes: [...(remoteData[id].notes || [])]
+      };
+    }
+    // If it does exist locally, SKIP remote for this regId entirely.
+    // The next successful push will sync local deletions upstream.
+  }
+  
   sharedAnnotations = merged;
 }
 
