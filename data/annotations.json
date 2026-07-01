@@ -8,7 +8,13 @@
           "createdAt": "2026-06-17T11:49:20.191Z"
         }
       ],
-      "notes": []
+      "notes": [
+        {
+          "text": "hi",
+          "author": "Camellia",
+          "createdAt": "2026-07-01T07:23:27.707Z"
+        }
+      ]
     },
     "2026-STA03": {
       "tags": [],
@@ -19,5 +25,5 @@
       "notes": []
     }
   },
-  "lastUpdated": "2026-07-01T07:23:12.571Z"
+  "lastUpdated": "2026-07-01T07:23:27.707Z"
 }
