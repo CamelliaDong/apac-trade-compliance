@@ -1,36 +1,15 @@
 {
-  "last_run": "2026-07-01T08:01:32.883426",
-  "run_result": "success",
-  "total_existing": 56,
-  "total_found": 9,
-  "rejected_non_regulation": 3,
+  "last_run": "2026-07-01T08:10:28.003700",
+  "run_result": "no_new",
+  "total_existing": 54,
+  "total_found": 5,
+  "rejected_non_regulation": 0,
   "rejected_duplicates": 5,
-  "new_found": 1,
-  "new_added": 1,
+  "new_found": 0,
+  "new_added": 0,
   "needs_review": 0,
-  "entries": [
-    {
-      "id": "2026-041",
-      "title": "现行有效外汇管理主要法规目录（截至2025年12月31日）",
-      "status": "pending",
-      "category": "FX Management",
-      "url": "https://www.safe.gov.cn/safe/2026/0130/27089.html"
-    }
-  ],
-  "rejected_non_reg_details": [
-    {
-      "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    },
-    {
-      "title": "中国人民银行 国家外汇管理局关于调整银行业金融机构境外贷款业务有关事宜的通知（银...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    },
-    {
-      "title": "中国人民银行 国家外汇管理局关于印发《境内企业境外放款管理办法》的通知（银发〔2...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    }
-  ],
+  "entries": [],
+  "rejected_non_reg_details": [],
   "rejected_dup_details": [
     {
       "title": "商务部公告2026年第25号 公布对原产于加拿大的豌豆淀粉反倾销调查的初步裁定",
