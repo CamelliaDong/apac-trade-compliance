@@ -2787,6 +2787,23 @@ function startSyncPoll() {
 }
 
 function loadLocalAnnotations() {
+  // One-time cleanup for v2.1: wipe localStorage annotation cache after deletion bug fix
+  const LOCAL_STORAGE_VERSION = 'v2.1';
+  const currentVersion = localStorage.getItem('annotation_version');
+  if (currentVersion !== LOCAL_STORAGE_VERSION) {
+    // Version mismatch — clear all old annotation data to avoid stale deletions
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith('tags_') || key.startsWith('notes_') || key.startsWith('comment_')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('annotation_version', LOCAL_STORAGE_VERSION);
+    console.log('[Tracker] Cleaned ' + keysToRemove.length + ' stale annotation entries (v2.1 migration)');
+  }
+
   // Pre-load all localStorage tags/notes into sharedAnnotations
   // This ensures local data is available immediately and can be merged with remote data
   for (let i = 0; i < localStorage.length; i++) {
@@ -3107,15 +3124,13 @@ function addSharedNote(id, note) {
 }
 
 function deleteSharedNote(id, noteIndex) {
-  if (sharedAnnotations[id] && sharedAnnotations[id].notes) {
+  if (sharedAnnotations[id] && sharedAnnotations[id].notes && noteIndex >= 0 && noteIndex < sharedAnnotations[id].notes.length) {
+    // Remove from in-memory once
     sharedAnnotations[id].notes.splice(noteIndex, 1);
+    // Save current state to localStorage (do NOT splice again — same array reference)
+    localStorage.setItem('notes_' + id, JSON.stringify(sharedAnnotations[id].notes));
+    // Try to push: if it fails, localStorage still has the clean state
     pushAnnotations();
-  }
-  // Also update local backup
-  const localNotes = getSharedNotes(id);
-  if (noteIndex >= 0 && noteIndex < localNotes.length) {
-    localNotes.splice(noteIndex, 1);
-    localStorage.setItem('notes_' + id, JSON.stringify(localNotes));
   }
   renderTimeline();
 }
