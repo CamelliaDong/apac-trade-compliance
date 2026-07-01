@@ -5,6 +5,9 @@ on:
     # Run every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC (08:00, 14:00, 20:00, 02:00 Beijing time)
     - cron: '0 */6 * * *'
   workflow_dispatch: # Allow manual trigger
+  push:
+    branches:
+      - gh-pages  # Also run on every push to gh-pages (redundancy for flaky cron)
 
 permissions:
   contents: write
