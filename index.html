@@ -1383,6 +1383,7 @@ body {
       <span class="label">Category:</span>
       <button class="filter-btn active" data-filter="category" data-value="all">All</button>
       <button class="filter-btn" data-filter="category" data-value="Tariff">💰 Tariff</button>
+      <button class="filter-btn" data-filter="category" data-value="Trade Remedies">⚖️ Trade Remedies</button>
       <button class="filter-btn" data-filter="category" data-value="Export Control">🔒 Export Control</button>
       <button class="filter-btn" data-filter="category" data-value="AEO / Enterprise">🏢 AEO / Enterprise</button>
       <button class="filter-btn" data-filter="category" data-value="Customs Supervision">🛃 Customs Supervision</button>
@@ -1417,6 +1418,7 @@ body {
     <div class="sidebar-card">
       <h3>📂 Category Legend</h3>
       <div class="legend-item"><span class="legend-dot" style="background:#2d5be3"></span> 💰 Tariff (关税税率)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#97266d"></span> ⚖️ Trade Remedies (贸易救济)</div>
       <div class="legend-item"><span class="legend-dot" style="background:#e53e3e"></span> 🔒 Export Control (出口管制)</div>
       <div class="legend-item"><span class="legend-dot" style="background:#38a169"></span> 🏢 AEO / Enterprise (企业管理)</div>
       <div class="legend-item"><span class="legend-dot" style="background:#dd6b20"></span> 🛃 Customs Supervision (监管通关)</div>
@@ -1465,7 +1467,7 @@ body {
     <div class="update-section">
       <h3>🔄 Data Sources & Updates</h3>
       <div class="update-info">
-        <p>This system tracks <strong>Tariff</strong>, <strong>Export Control</strong>, <strong>AEO / Enterprise Management</strong>, <strong>Customs Supervision</strong>, <strong>Bonded / FTZ</strong>, <strong>Export Tax Refund</strong>, and <strong>Inspection &amp; Quarantine</strong> regulations.</p>
+        <p>This system tracks <strong>Tariff</strong>, <strong>Trade Remedies</strong>, <strong>Export Control</strong>, <strong>AEO / Enterprise Management</strong>, <strong>Customs Supervision</strong>, <strong>Bonded / FTZ</strong>, <strong>Export Tax Refund</strong>, and <strong>Inspection &amp; Quarantine</strong> regulations.</p>
         <p style="margin-top:6px;">Data Sources:</p>
         <ul style="margin-left:18px;margin-top:4px;">
           <li><a href="http://www.customs.gov.cn/customs/302249/2480148/index.html" target="_blank">GACC Announcements (海关总署公告专栏)</a></li>
@@ -2584,8 +2586,8 @@ const BUILTIN_REGULATIONS = [
     effectiveDate: "2026-06-30",
     org: "MOFCOM",
     orgCN: "商务部",
-    category: "Tariff",
-    categoryCN: "监管通关",
+    category: "Trade Remedies",
+    categoryCN: "贸易救济",
     status: "effective",
     description: "商务部对原产于加拿大的进口豌豆淀粉（税则号11081900）作出反倾销调查初步裁定，认定存在倾销且对国内豌豆淀粉产业造成实质损害。自2026年7月1日起，进口经营者进口被调查产品时需按73.5%的保证金比率向海关提供保证金（从价计征）。",
     supersedes: [],
@@ -2938,7 +2940,7 @@ function loadMonitorData() {
            <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">✅ No new regulations this run</div>`;
       } else {
         const catColors = {
-          'Tariff': '#2d5be3', 'Export Control': '#e53e3e',
+          'Tariff': '#2d5be3', 'Trade Remedies': '#97266d', 'Export Control': '#e53e3e',
           'AEO / Enterprise': '#38a169', 'Customs Supervision': '#dd6b20',
           'Bonded / FTZ': '#805ad5', 'Export Tax Refund': '#d69e2e',
           'Inspection & Quarantine': '#319795'
@@ -3146,7 +3148,7 @@ function orgColorHex(org) {
   if (org === 'STA') return '#d69e2e';
   return '#2d5be3';
 }
-function catIcon(cat) { return {'Tariff':'💰','Export Control':'🔒','AEO / Enterprise':'🏢','Customs Supervision':'🛃','Bonded / FTZ':'🏗️','Export Tax Refund':'💸','Inspection & Quarantine':'🔬'}[cat]||'📋'; }
+function catIcon(cat) { return {'Tariff':'💰','Trade Remedies':'⚖️','Export Control':'🔒','AEO / Enterprise':'🏢','Customs Supervision':'🛃','Bonded / FTZ':'🏗️','Export Tax Refund':'💸','Inspection & Quarantine':'🔬'}[cat]||'📋'; }
 function sourceBadge(source) {
   if (source === 'Gov.cn') return '<span class="badge badge-source">Gov.cn</span>';
   if (source === 'TCTC') return '<span class="badge badge-source" style="background:#805ad5;color:#fff">TCTC</span>';
