@@ -22,6 +22,7 @@
   --accent-teal: #319795;
   --accent-gold: #d69e2e;
   --accent-cyan: #0891b2;
+  --accent-rose: #e11d48;  /* SAFE */
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
   --shadow-md: 0 4px 14px rgba(0,0,0,0.09);
   --shadow-lg: 0 8px 28px rgba(0,0,0,0.12);
@@ -1475,6 +1476,7 @@ body {
           <li><a href="http://gss.mof.gov.cn/gzdt/zhengcefabu/" target="_blank">TCTC Policy Releases (财政部关税税则委员会政策发布专栏)</a></li>
           <li><a href="https://www.mofcom.gov.cn/zcfb/index.html" target="_blank">MOFCOM Policy Releases (商务部政策发布)</a></li>
           <li><a href="https://fgk.chinatax.gov.cn" target="_blank">STA Tax Regulations Database (国家税务总局税收法规库)</a></li>
+          <li><a href="https://www.safe.gov.cn/safe/zcfg/index.html" target="_blank">SAFE Policy & Regulations (国家外汇管理局政策法规)</a></li>
         </ul>
         <p style="margin-top:8px;color:var(--accent-teal);">⚙️ Update mechanism: <strong>GitHub Actions</strong> automatically scrapes official government websites every 6 hours (no manual intervention needed, runs even when your computer is offline). A local AI automation reviews newly added entries daily at 09:30 — fixing dates, normalizing titles/document numbers, summarizing descriptions, and converting <code>pending</code> → <code>effective</code> status. Click the <strong>🤖</strong> button in the bottom bar to monitor the latest scraper results.</p>
       </div>
@@ -2594,7 +2596,45 @@ const BUILTIN_REGULATIONS = [
     supersededDetails: [],
     url: "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_b41d86d911fc4488a69302a72ce77116.html",
     source: "MOFCOM"
-  }
+  },
+
+  // ---- SAFE (国家外汇管理局) ----
+  {
+    id: "2026-SAFE01",
+    number: "SAFE Notice — 汇综发〔2026〕28号",
+    numberCN: "汇综发〔2026〕28号",
+    title: "关于推动跨境贸易高水平开放试点扩围提质的通知",
+    date: "2026-03-28",
+    effectiveDate: "2026-03-28",
+    org: "SAFE",
+    orgCN: "国家外汇管理局",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "effective",
+    description: "国家外汇管理局决定进一步扩大跨境贸易高水平开放试点范围并提升试点质量，新增多个试点地区，便利优质企业经常项目外汇收支，简化单证审核流程，推动外汇服务实体经济。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://www.safe.gov.cn/safe/2026/0328/27284.html",
+    source: "SAFE"
+  },
+  {
+    id: "2026-SAFE02",
+    number: "SAFE Notice — 银发〔2026〕72号",
+    numberCN: "银发〔2026〕72号",
+    title: "关于调整银行业金融机构境外贷款业务有关事宜的通知",
+    date: "2026-04-15",
+    effectiveDate: "2026-04-15",
+    org: "SAFE",
+    orgCN: "国家外汇管理局",
+    category: "Customs Supervision",
+    categoryCN: "监管通关",
+    status: "effective",
+    description: "中国人民银行与国家外汇管理局联合发布，调整银行业金融机构境外贷款业务管理要求，优化跨境融资宏观审慎管理参数，简化境外放款登记流程，支持企业跨境经营。",
+    supersedes: [],
+    supersededDetails: [],
+    url: "https://www.safe.gov.cn/safe/2026/0415/27357.html",
+    source: "SAFE"
+  },
 
 ];
 
@@ -3154,6 +3194,7 @@ function orgColor(org) {
   if (org === 'MOFCOM') return 'var(--accent-teal)';
   if (org === 'SCIO') return 'var(--accent-cyan)';
   if (org === 'STA') return 'var(--accent-gold)';
+  if (org === 'SAFE') return 'var(--accent-rose)';
   return 'var(--accent-blue)';
 }
 function orgColorHex(org) {
