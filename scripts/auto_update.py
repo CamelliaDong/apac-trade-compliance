@@ -54,6 +54,10 @@ CATEGORY_KEYWORDS = {
                           '境外生产企业注册'],
     'Bonded / FTZ': ['保税', '自贸区', '自贸港', '零关税进境', '综合保税',
                       '跨境区', '离岛免税'],
+    'FX Management': ['外汇管理', '外汇局', '外汇收支', '跨境资金', '外汇登记',
+                       '经常项目外汇', '货物贸易外汇', '服务贸易外汇',
+                       '境外放款', '境外贷款', '外汇业务', '结售汇',
+                       '跨境贸易高水平开放', '贸易外汇收支', '外汇结算'],
     # Trade Remedies MUST come before Tariff: anti-dumping/countervailing
     # announcements often mention "关税" (e.g. 反倾销税) in their text but
     # are trade-defense proceedings, not tariff policy. Match remedy keywords first.
@@ -75,6 +79,7 @@ CATEGORY_CN_MAP = {
     'Export Control': '出口管制',
     'AEO / Enterprise': '企业管理',
     'Bonded / FTZ': '保税/自贸区',
+    'FX Management': '外汇管理',
     'Trade Remedies': '贸易救济',
     'Tariff': '关税税率',
     'Inspection & Quarantine': '检验检疫',
@@ -88,6 +93,7 @@ CATEGORY_EMOJI_MAP = {
     'AEO / Enterprise': '🏢',
     'Customs Supervision': '🛃',
     'Bonded / FTZ': '🏗️',
+    'FX Management': '💱',
     'Export Tax Refund': '💸',
     'Inspection & Quarantine': '🔬',
 }
@@ -1040,6 +1046,77 @@ def scrape_gov_cn_announcements():
 
 
 # ---------------------------------------------------------------------------
+# SAFE (State Administration of Foreign Exchange) scraper
+# ---------------------------------------------------------------------------
+
+def scrape_safe_announcements():
+    """Scrape SAFE (safe.gov.cn) for 2026 forex management regulations.
+    Primary: safe.gov.cn/safe/zcfg/ policy listing page."""
+    new_regs = []
+    print("[SAFE] Checking safe.gov.cn for new forex regulations...")
+
+    url = "https://www.safe.gov.cn/safe/zcfg/index.html"
+    resp = fetch(url)
+    if resp:
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        # SAFE listing page: links in article/div lists
+        links = soup.find_all('a', href=True)
+        for link in links:
+            href = link.get('href', '')
+            title = link.get_text(strip=True)
+
+            if '2026' not in title and '2026' not in href:
+                continue
+
+            # Only forex/trade related
+            fx_keywords = ['外汇', '跨境贸易', '境外放款', '境外贷款', '结售汇',
+                          '经常项目', '货物贸易', '服务贸易', '资金池',
+                          '外汇管理', '贸易外汇', '外汇结算', '外贸']
+            if not any(k in title for k in fx_keywords):
+                continue
+
+            full_url = urljoin(url, href)
+            if not full_url.startswith('http'):
+                full_url = 'https://www.safe.gov.cn' + full_url
+
+            new_regs.append({
+                'source_type': 'SAFE',
+                'numberCN_raw': title,
+                'title_raw': title,
+                'url': full_url,
+            })
+
+    # Fallback: gov.cn search for SAFE notices
+    if not new_regs:
+        print("[SAFE] Primary failed, trying gov.cn mirror...")
+        search_url = "https://s.gov.cn/search/search?keyword=" + quote('国家外汇管理局2026年 通知')
+        resp = fetch(search_url)
+        if resp:
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            links = soup.find_all('a', href=True)
+            for link in links:
+                href = link.get('href', '')
+                title = link.get_text(strip=True)
+                if '2026' not in title:
+                    continue
+                if not any(k in title for k in fx_keywords):
+                    continue
+                full_url = urljoin(search_url, href)
+                if not full_url.startswith('http'):
+                    full_url = 'https://www.gov.cn' + full_url
+                new_regs.append({
+                    'source_type': 'SAFE',
+                    'numberCN_raw': title,
+                    'title_raw': title,
+                    'url': full_url,
+                    'is_mirror': True,
+                })
+
+    print(f"  [SAFE] Found {len(new_regs)} potential forex regulations")
+    return new_regs
+
+
+# ---------------------------------------------------------------------------
 # Main update logic
 # ---------------------------------------------------------------------------
 
@@ -1071,6 +1148,7 @@ def main():
     all_new.extend(scrape_mofcom_announcements())
     all_new.extend(scrape_sta_announcements())
     all_new.extend(scrape_gov_cn_announcements())
+    all_new.extend(scrape_safe_announcements())
     
     # Filter out already-existing regulations and non-regulation content
     truly_new = []
