@@ -17,13 +17,7 @@
       ]
     },
     "2026-007b": {
-      "tags": [
-        {
-          "text": "标签",
-          "author": "Camellia",
-          "createdAt": "2026-07-01T06:05:34.718Z"
-        }
-      ],
+      "tags": [],
       "notes": [
         {
           "text": "hi",
@@ -37,5 +31,5 @@
       "notes": []
     }
   },
-  "lastUpdated": "2026-07-01T06:54:54.255Z"
+  "lastUpdated": "2026-07-01T06:55:53.355Z"
 }
