@@ -22,8 +22,14 @@
     },
     "2026-007b": {
       "tags": [],
-      "notes": []
+      "notes": [
+        {
+          "text": "hi",
+          "author": "Camellia",
+          "createdAt": "2026-07-01T06:05:43.552Z"
+        }
+      ]
     }
   },
-  "lastUpdated": "2026-07-01T07:18:45.175Z"
+  "lastUpdated": "2026-07-01T07:22:57.890Z"
 }
