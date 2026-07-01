@@ -1,22 +1,14 @@
 {
-  "last_run": "2026-07-01T08:44:42.875957",
-  "run_result": "success",
-  "total_existing": 57,
+  "last_run": "2026-07-01T11:43:10.827182",
+  "run_result": "no_new",
+  "total_existing": 58,
   "total_found": 9,
   "rejected_non_regulation": 3,
-  "rejected_duplicates": 5,
-  "new_found": 1,
-  "new_added": 1,
+  "rejected_duplicates": 6,
+  "new_found": 0,
+  "new_added": 0,
   "needs_review": 0,
-  "entries": [
-    {
-      "id": "2026-041",
-      "title": "现行有效外汇管理主要法规目录（截至2025年12月31日）",
-      "status": "pending",
-      "category": "FX Management",
-      "url": "https://www.safe.gov.cn/safe/2026/0130/27089.html"
-    }
-  ],
+  "entries": [],
   "rejected_non_reg_details": [
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
@@ -51,6 +43,10 @@
     {
       "title": "商务部公告2026年第24号 公布《产业链供应链安全调查工作办法》",
       "reason": "numberCN already exists: 商务部公告2026年第24号"
+    },
+    {
+      "title": "现行有效外汇管理主要法规目录（截至2025年12月31日）",
+      "reason": "numberCN already exists: 现行有效外汇管理主要法规目录（截至2025年12月31日）"
     }
   ],
   "learnings": {
