@@ -59,6 +59,8 @@
   ],
   "learnings": {
     "last_human_corrections": [
+      "2026-07-02: 删除 2026-041（现行有效外汇管理主要法规目录）— 法规目录非独立法规，多次复发",
+      "2026-07-02: auto_update.py 添加法规目录过滤（NON_REGULATION_TITLE_PATTERNS + SAFE爬虫catalog_keywords）",
       "2026-07-01(2): 修正 2026-040 — 5处问题（status/number误标GACC/title前缀/raw描述/分类错误）",
       "2026-07-01: 删除 2026-035（燃料油企业公示）— 非正式法规，第二次被删",
       "2026-07-01: 3条pending→effective（2026-019/032/034）— 7月1日生效",
@@ -82,14 +84,16 @@
       "2026-027b numberCN上次标记已修复但实际未生效",
       "公示类标题不应收录",
       "反倾销公告被爬虫误标为GACC而非MOFCOM",
-      "date=6/30但status=pending（当日发布当日起效的法规应直接effective）"
+      "date=6/30但status=pending（当日发布当日起效的法规应直接effective）",
+      "法规目录/索引被当作单独法规收录（如SAFE现行有效外汇管理主要法规目录）"
     ],
     "dedup_rules_effective": [
       "numberCN精确匹配 — 有效拦截同编号重复",
       "URL去重 — 有效拦截同链接重复",
       "通讯稿URL模式过滤 — 有效拦截海关新闻稿",
       "5类内容过滤 — 有效拦截解读/统计/新闻/农业类",
-      "标题含公示→识别为非法规"
+      "标题含公示→识别为非法规",
+      "法规目录/索引过滤 — 拦截'法规目录'、'目录（'、'现行有效.*法规目录'"
     ],
     "last_run_date": "2026-07-01",
     "last_run_errors": []

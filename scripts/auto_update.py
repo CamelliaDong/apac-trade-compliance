@@ -139,6 +139,9 @@ NON_REGULATION_TITLE_PATTERNS = [
     r'答记者问',             # Q&A with journalists
     r'通稿$',               # Press releases (通稿)
     r'情况通报$',           # Situation briefings (not regulations)
+    r'法规目录',             # Regulation catalog/index (not actual regulations)
+    r'目录（',              # Catalog titles with date suffix, e.g. "目录（截至..."
+    r'现行有效.*法规目录',   # SAFE-style catalog: "现行有效XX法规目录"
 ]
 
 NON_REGULATION_URL_PATH_PATTERNS = [
@@ -1073,6 +1076,11 @@ def scrape_safe_announcements():
                           '经常项目', '货物贸易', '服务贸易', '资金池',
                           '外汇管理', '贸易外汇', '外汇结算', '外贸']
             if not any(k in title for k in fx_keywords):
+                continue
+            # Skip catalog/index entries (not actual regulations)
+            catalog_keywords = ['法规目录', '目录（', '现行有效.*法规']
+            if any(re.search(k, title) for k in catalog_keywords):
+                print(f"  [SAFE-SKIP-CATALOG] {title[:60]}")
                 continue
 
             full_url = urljoin(url, href)
