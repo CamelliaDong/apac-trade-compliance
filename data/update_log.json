@@ -1,9 +1,9 @@
 {
-  "last_run": "2026-07-02T10:20:13.229270",
+  "last_run": "2026-07-02T18:18:08.432632",
   "run_result": "no_new",
   "total_existing": 57,
-  "total_found": 16,
-  "rejected_non_regulation": 11,
+  "total_found": 13,
+  "rejected_non_regulation": 8,
   "rejected_duplicates": 5,
   "new_found": 0,
   "new_added": 0,
@@ -41,18 +41,6 @@
     {
       "title": "图表：2026年前5个月我国服务进出口总额同比增长6%",
       "reason": "Title matches non-regulation pattern: 进出口总额同[比增降]"
-    },
-    {
-      "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    },
-    {
-      "title": "中国人民银行 国家外汇管理局关于调整银行业金融机构境外贷款业务有关事宜的通知（银...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    },
-    {
-      "title": "中国人民银行 国家外汇管理局关于印发《境内企业境外放款管理办法》的通知（银发〔2...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
     }
   ],
   "rejected_dup_details": [
