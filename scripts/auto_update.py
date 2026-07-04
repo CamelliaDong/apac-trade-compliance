@@ -947,8 +947,10 @@ def scrape_mofcom_announcements():
 
 
 def scrape_sta_announcements():
-    """Scrape STA (国家税务总局) for export tax refund related policies.
-    Uses chinatax.gov.cn as primary, gov.cn/Bing as fallback."""
+    """Scrape STA (国家税务总局) for trade-related tax policies.
+    Uses chinatax.gov.cn as primary, gov.cn/Bing as fallback.
+    Coverage: export tax refund, VAT, consumption tax, vehicle/vessel tax,
+    and other trade-relevant tax types. (Updated 2026-07-04: +车船税/印花税)"""
     new_regs = []
     print("[STA] Checking fgk.chinatax.gov.cn for new policies...")
     
@@ -962,7 +964,11 @@ def scrape_sta_announcements():
             href = link.get('href', '')
             title = link.get_text(strip=True)
             
-            if not any(k in title for k in ['出口', '退税', '增值税', '消费税', '公告2026年']):
+            # Tax-related keywords (export-dominated but now includes domestic taxes
+            # that are trade-adjacent, e.g. vehicle/vessel tax, stamp tax)
+            tax_keywords = ['出口', '退税', '增值税', '消费税', '公告2026年',
+                           '车船税', '印花税', '税收优惠']
+            if not any(k in title for k in tax_keywords):
                 continue
             if '2026' not in title:
                 continue
@@ -978,7 +984,7 @@ def scrape_sta_announcements():
     # Fallback: Bing search
     if not new_regs:
         print("[STA] Primary failed, trying Bing search...")
-        bing_url = f"https://www.bing.com/search?q={quote('国家税务总局公告2026年 出口退税 site:chinatax.gov.cn OR site:gov.cn')}"
+        bing_url = f"https://www.bing.com/search?q={quote('国家税务总局公告2026年 税收 出口退税 车船税 site:chinatax.gov.cn OR site:gov.cn')}"
         resp = fetch(bing_url)
         if resp:
             soup = BeautifulSoup(resp.text, 'html.parser')
@@ -992,7 +998,7 @@ def scrape_sta_announcements():
                 
                 if '2026' not in title:
                     continue
-                if not any(k in title for k in ['出口', '退税', '增值税', '国家税务总局公告']):
+                if not any(k in title for k in ['出口', '退税', '增值税', '国家税务总局公告', '车船税', '印花税', '税收优惠']):
                     continue
                 
                 new_regs.append({
