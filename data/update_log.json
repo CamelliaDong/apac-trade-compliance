@@ -1,39 +1,15 @@
 {
-  "last_run": "2026-07-05T13:53:08.777306",
+  "last_run": "2026-07-05T19:27:27.953793",
   "run_result": "no_new",
   "total_existing": 59,
-  "total_found": 16,
-  "rejected_non_regulation": 11,
+  "total_found": 10,
+  "rejected_non_regulation": 5,
   "rejected_duplicates": 5,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
-    {
-      "title": "海关总署公告2026年第91号（关于豌豆淀粉商品编号申报要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-06/30/article_2026063"
-    },
-    {
-      "title": "海关总署公告2026年第90号（关于进口塞尔维亚禽肉检验检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-06/30/article_2026063"
-    },
-    {
-      "title": "海关总署公告2026年第89号（关于发布海关办理行政复议案件新增法律文书格式的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-06/30/article_2026063"
-    },
-    {
-      "title": "海关总署公告2026年第88号（关于全面推广《货物进口证明书（汽车、摩托车）》和《进口机动车辆随车检验单》“两证合一”改革的公...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    },
-    {
-      "title": "海关总署公告2026年第85号（关于发布《2026年第48届世界技能大赛海关通关须知》的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-06/17/article_2026061"
-    },
-    {
-      "title": "海关总署公告2026年第83号（关于发布海关检验检疫行政处罚法律文书模板的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-06/16/article_2026061"
-    },
     {
       "title": "图表：2026年前5个月我国服务进出口总额同比增长6%",
       "reason": "Title matches non-regulation pattern: 进出口总额同[比增降]"
