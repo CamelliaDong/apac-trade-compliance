@@ -9,6 +9,13 @@ on:
     branches:
       - gh-pages  # Also run on every push to gh-pages (redundancy for flaky cron)
 
+# Prevent concurrent workflow runs on the same branch.
+# When a new push comes in while another run is in progress, cancel the old one
+# (concurrency group: branch). This avoids merge conflicts on data/update_log.json.
+concurrency:
+  group: auto-update-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   issues: write
@@ -58,8 +65,15 @@ jobs:
           COMMIT_MSG="🤖 Auto-update: new regulations detected - $(date +%Y-%m-%d)"
           git commit -m "$COMMIT_MSG" || echo "Commit failed, possibly empty"
           # Rebase on latest remote before pushing (handles concurrent manual edits)
-          git pull --rebase origin gh-pages || echo "Rebase failed, trying force push"
-          git push origin gh-pages || git push --force-with-lease origin gh-pages
+          # Use --no-rebase-merged to avoid mid-rebase conflict on update_log.json
+          if git pull --rebase --no-rebase-merged origin gh-pages 2>/dev/null; then
+            git push origin gh-pages
+          else
+            # Fallback: rebase succeeded but had conflicts we resolved manually is unlikely
+            # If rebase itself fails, try fetch + rebase again
+            git fetch origin gh-pages
+            git rebase origin/gh-pages && git push origin gh-pages || echo "REBASE_PUSH_FAILED"
+          fi
 
       - name: Push update log even when no new regulations
         if: steps.run_update.outputs.has_changes == 'false'
@@ -70,9 +84,20 @@ jobs:
           if ! git diff --cached --quiet; then
             COMMIT_MSG="🤖 Auto-update: checked, no new regulations - $(date +%Y-%m-%d)"
             git commit -m "$COMMIT_MSG"
-            # Rebase on latest remote before pushing
-            git pull --rebase origin gh-pages || echo "Rebase failed, trying force push"
-            git push origin gh-pages || git push --force-with-lease origin gh-pages
+            # For no-new regulations, our update_log changes are timestamp-only.
+            # If rebase hits conflict on data/update_log.json, prefer "theirs" (remote)
+            # since it's likely another concurrent run already pushed an update.
+            git fetch origin gh-pages
+            if git rebase origin/gh-pages 2>/dev/null; then
+              git push origin gh-pages
+            else
+              # Abort and try a clean rebase with "theirs" strategy
+              git rebase --abort
+              echo "Rebase conflict detected on data/update_log.json — using theirs (remote is newer)"
+              git checkout origin/gh-pages -- data/update_log.json
+              git commit --amend --no-edit
+              git push origin gh-pages
+            fi
           else
             echo "No changes to commit (update_log unchanged)"
           fi
@@ -96,13 +121,13 @@ jobs:
           # Check existing open issues to avoid duplicates
           EXISTING_ISSUES=$(gh issue list --state open --label auto-detected --limit 50 2>/dev/null || echo "")
           EXISTING_COUNT=$(echo "$EXISTING_ISSUES" | grep -c "New Regulations" || echo "0")
-          
+
           if [ "$EXISTING_COUNT" -gt 5 ]; then
             echo "⚠️ Already $EXISTING_COUNT open auto-detected issues — skipping to avoid accumulation"
             echo "Please review and close existing issues before new ones are created."
             exit 0
           fi
-          
+
           # Read the notification data
           TITLE="🆕 New Regulations Detected - $(date +%Y-%m-%d)"
           BODY=$(python3 -c "
@@ -125,7 +150,7 @@ jobs:
           lines.append('Run the Skill locally to verify and complete them.')
           print('\\n'.join(lines))
           ")
-          
+
           # Create issue with auto-detected label
           echo "$BODY" | gh issue create \
             --title "$TITLE" \
