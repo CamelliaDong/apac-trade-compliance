@@ -2,7 +2,13 @@
   "annotations": {
     "2026-STA02": {
       "tags": [],
-      "notes": []
+      "notes": [
+        {
+          "text": "hi",
+          "author": "Camellia",
+          "createdAt": "2026-07-08T01:51:00.804Z"
+        }
+      ]
     },
     "2026-STA03": {
       "tags": [],
@@ -13,5 +19,5 @@
       "notes": []
     }
   },
-  "lastUpdated": "2026-07-08T01:50:51.886Z"
+  "lastUpdated": "2026-07-08T01:51:00.804Z"
 }
