@@ -1349,9 +1349,60 @@ body {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+/* ── Internal Site Banner ── */
+.internal-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  color: #e2e8f0;
+  position: relative;
+  z-index: 1000;
+}
+.internal-banner-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.internal-banner-icon { font-size: 1.6rem; flex-shrink: 0; }
+.internal-banner-text { flex: 1; min-width: 260px; line-height: 1.55; }
+.internal-banner-text strong { font-size: 0.95rem; color: #fff; }
+.internal-banner-text p { margin: 4px 0 0; font-size: 0.83rem; color: #cbd5e1; }
+.internal-banner-text a {
+  color: #7dd3fc; text-decoration: underline;
+  font-family: monospace; font-size: 0.8rem;
+  word-break: break-all;
+}
+.internal-banner-text a:hover { color: #bae6fd; }
+.internal-banner-text small { color: #94a3b8; font-size: 0.76rem; }
+.internal-banner-close {
+  background: rgba(255,255,255,0.12); border: none;
+  color: #94a3b8; font-size: 1.5rem; cursor: pointer;
+  width: 32px; height: 32px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; line-height: 1;
+}
+.internal-banner-close:hover { background: rgba(255,255,255,0.22); color: #fff; }
 </style>
 </head>
 <body>
+
+<!-- Internal Site Banner -->
+<div id="internalSiteBanner" class="internal-banner">
+  <div class="internal-banner-content">
+    <span class="internal-banner-icon">🔒</span>
+    <div class="internal-banner-text">
+      <strong>Looking for our internal tracker?</strong>
+      <p>We maintain a private, company-hosted version at<br>
+      <a href="https://pages.github.pie.apple.com/camelliad22/China-customs-regulation-tracker/" target="_blank" rel="noopener">
+        pages.github.pie.apple.com/camelliad22/China-customs-regulation-tracker/
+      </a><br>
+      <small>It includes pre-2026 regulations relevant to our business + additional privacy &amp; security. Feel free to use it!</small></p>
+    </div>
+    <button class="internal-banner-close" onclick="document.getElementById('internalSiteBanner').style.display='none'" title="Dismiss">&times;</button>
+  </div>
+</div>
 
 <!-- Header -->
 <header class="header">
