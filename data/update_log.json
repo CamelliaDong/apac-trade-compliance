@@ -1,15 +1,35 @@
 {
-  "last_run": "2026-07-20T09:26:53.680342",
+  "last_run": "2026-07-20T14:20:48.078891",
   "run_result": "no_new",
   "total_existing": 65,
-  "total_found": 6,
-  "rejected_non_regulation": 3,
+  "total_found": 11,
+  "rejected_non_regulation": 8,
   "rejected_duplicates": 3,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
+    {
+      "title": "海关总署公告2026年第102号（关于进口老挝鲜食菠萝蜜植物检疫要求的公告）",
+      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/20/article_2026072"
+    },
+    {
+      "title": "海关总署公告2026年第101号（关于进口老挝植物源性中药材检疫要求补充条款的公告）",
+      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/20/article_2026072"
+    },
+    {
+      "title": "海关总署公告2026年第97号（关于调整必须实施检验的进出口商品目录的公告）",
+      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/10/article_2026071"
+    },
+    {
+      "title": "海关总署 农业农村部公告2026年第99号（关于防止洪都拉斯高致病性禽流感传入我国的公告）",
+      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/14/article_2026071"
+    },
+    {
+      "title": "海关总署公告2026年第96号（关于供港澳水果检验检疫监督管理要求的公告）",
+      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/10/article_2026071"
+    },
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
       "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
