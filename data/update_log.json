@@ -47,16 +47,16 @@
   ],
   "learnings": {
     "last_human_corrections": [
+      "2026-08-08: 审计73条→1处修正。2026-IQ01 pending→effective（生效日8/1已过）。+4新增（053-056）WebSearch全验证通过。8条pending均有未来生效日。",
+      "2026-07-30: 审计69条→0修正。+2新增（051/052）验证通过。9条pending均有未来生效日。",
+      "2026-07-26: 审计67条→0修正，全通过。无新条目。",
+      "2026-07-25: 审计67条→0修正。+1新增（050 MOFCOM#30 14家欧盟实体出口管制）。auto_update误拒MOFCOM#30为重复（false positive）。",
       "2026-07-24: 全量审计66条→0修正，全通过。9条pending均有未来生效日无需转换。11项recurring_mistakes全通过。",
       "2026-07-23: 全量审计66条→0修正，全通过。9条pending均有未来生效日无需转换。STA非贸易税收误抓(047/048)持续标记。",
       "2026-07-22: 修正 2026-049 number字段 Decree→Order 保持与现有GACC令一致性",
       "2026-07-22: 标记 2026-047（企业重组所得税）和 2026-048（车辆购置税）为非贸易国内税收政策，STA爬虫持续误抓 — 仅标记不删除",
       "2026-07-21: 标记 2026-047/048 为STA非贸易税收误抓，9条pending均无需转换",
-      "2026-07-04: auto_update.py STA爬虫关键词扩展（+车船税/印花税/税收优惠），Bing搜索词从出口退税扩展为税收+出口退税+车船税",
-      "2026-07-04: 手动添加 2026-042（车船税政策调整）— STA爬虫之前只监控出口退税/VAT/消费税，漏了车船税",
-      "2026-07-02: 删除 2026-041（现行有效外汇管理主要法规目录）— 法规目录非独立法规，多次复发",
-      "2026-07-02: auto_update.py 添加法规目录过滤（NON_REGULATION_TITLE_PATTERNS + SAFE爬虫catalog_keywords）",
-      "2026-07-01(2): 修正 2026-040 — 5处问题（status/number误标GACC/title前缀/raw描述/分类错误）"
+      "2026-07-04: auto_update.py STA爬虫关键词扩展（+车船税/印花税/税收优惠），Bing搜索词从出口退税扩展为税收+出口退税+车船税"
     ],
     "problematic_url_patterns": [
       "customs.gov.cn/customs/YYYY-MM/DD/ — 通讯稿URL，非正式公告格式",
@@ -79,7 +79,9 @@
       "STA爬虫扩展关键词后持续误抓非贸易国内税收（企业重组所得税2026-047、车辆购置税2026-048）— 不宜进一步扩大关键词以避更多误抓",
       "MOFCOM公告自动检测器对出口管制类公告易标错number为GACC（2026-050误为GACC Announcement）— 解析来源域名时应区分mofcom.gov.cn与customs.gov.cn",
       "title未去除发布部门前缀（如'商务部公告2026年第30号'重复出现在title中）— 应只保留核心公告名",
-      "GitHub Pages CDN缓存约需30秒刷新，本地push后用户可能短暂看到旧版本"
+      "GitHub Pages CDN缓存约需30秒刷新，本地push后用户可能短暂看到旧版本",
+      "MOFCOM 商务部令（Decree）格式爬虫可能无法识别 — 2026-054/055均为商务部令而非公告，需确认auto_update.py能解析\"商务部令\"文号",
+      "auto_update.py MOFCOM公告去重存在false positive — 曾误将MOFCOM#30标记为重复（实际numberCN唯一），需排查dedup逻辑"
     ],
     "dedup_rules_effective": [
       "numberCN精确匹配 — 有效拦截同编号重复",
@@ -90,7 +92,7 @@
       "法规目录/索引过滤 — 拦截'法规目录'、'目录（'、'现行有效.*法规目录'",
       "STA税种关键词扩展 — 车船税/印花税/税收优惠 → 覆盖更多贸易相关税收政策（2026-07-04）"
     ],
-    "last_run_date": "2026-07-24",
+    "last_run_date": "2026-08-08",
     "last_run_errors": []
   }
 }
