@@ -1,47 +1,15 @@
 {
-  "last_run": "2026-08-08T12:59:54.278257",
+  "last_run": "2026-08-08T18:46:34.234423",
   "run_result": "no_new",
   "total_existing": 76,
-  "total_found": 16,
-  "rejected_non_regulation": 11,
+  "total_found": 8,
+  "rejected_non_regulation": 3,
   "rejected_duplicates": 5,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
-    {
-      "title": "海关总署公告2026年第112号（关于废止部分卫生检疫类规范性文件的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/03/article_2026080"
-    },
-    {
-      "title": "海关总署公告2026年第111号（关于发布《进出境动植物检疫处理监督管理工作规定》《进出境卫生处理监督管理工作规定》的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/31/article_2026073"
-    },
-    {
-      "title": "海关总署公告2026年第110号（关于进口柬埔寨鲜食菠萝蜜植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/31/article_2026073"
-    },
-    {
-      "title": "海关总署公告2026年第108号（关于废止海南自由贸易港压力测试期间有关试行政策监管文件的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/28/article_2026072"
-    },
-    {
-      "title": "海关总署公告2026年第107号（关于进口孟加拉鲜食菠萝蜜植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/27/article_2026072"
-    },
-    {
-      "title": "海关总署公告2026年第106号（关于实施中国—乌兹别克斯坦海关“经认证的经营者”（AEO）互认的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/27/article_2026072"
-    },
-    {
-      "title": "海关总署公告2026年第105号（关于进口缅甸植物源性中药材植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/24/article_2026072"
-    },
-    {
-      "title": "海关总署公告2026年第104号（关于废止海关总署公告2017年第48号部分条款的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-07/24/article_2026072"
-    },
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
       "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
