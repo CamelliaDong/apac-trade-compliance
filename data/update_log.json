@@ -1,20 +1,20 @@
 {
-  "last_run": "2026-08-13T02:27:16.309842",
+  "last_run": "2026-08-13T07:43:36.407995",
   "run_result": "success",
-  "total_existing": 76,
-  "total_found": 8,
+  "total_existing": 77,
+  "total_found": 9,
   "rejected_non_regulation": 3,
-  "rejected_duplicates": 4,
+  "rejected_duplicates": 5,
   "new_found": 1,
   "new_added": 1,
   "needs_review": 0,
   "entries": [
     {
-      "id": "2026-060",
-      "title": "商务部公告2026年第32号 公布对原产于墨西哥和美国的进口碧根果反倾销调查的初步裁定",
+      "id": "2026-061",
+      "title": "商务部公告2026年第35号 公布对原产于印度的进口单模光纤所适用反倾销措施的期终复审裁定",
       "status": "pending",
       "category": "Trade Remedies",
-      "url": "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_163793cbe4344931b94d18974666d8aa.html"
+      "url": "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_66e8b0b73d7f4f39ba0a679a24902432.html"
     }
   ],
   "rejected_non_reg_details": [
@@ -32,6 +32,10 @@
     }
   ],
   "rejected_dup_details": [
+    {
+      "title": "商务部公告2026年第32号 公布对原产于墨西哥和美国的进口碧根果反倾销调查的初步裁定",
+      "reason": "numberCN already exists: 商务部公告2026年第32号"
+    },
     {
       "title": "商务部公告2026年第34号 公布加强无人机相关两用物项对美国出口管制",
       "reason": "numberCN already exists: 商务部公告2026年第34号"
