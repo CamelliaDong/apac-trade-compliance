@@ -1,22 +1,14 @@
 {
-  "last_run": "2026-08-20T06:55:26.443054",
-  "run_result": "success",
-  "total_existing": 82,
+  "last_run": "2026-08-20T12:59:38.877314",
+  "run_result": "no_new",
+  "total_existing": 83,
   "total_found": 10,
   "rejected_non_regulation": 3,
-  "rejected_duplicates": 6,
-  "new_found": 1,
-  "new_added": 1,
+  "rejected_duplicates": 7,
+  "new_found": 0,
+  "new_added": 0,
   "needs_review": 0,
-  "entries": [
-    {
-      "id": "2026-068",
-      "title": "商务部公告2026年第36号 公布对原产于美国、欧盟、台湾地区和日本的进口共聚聚甲醛反倾销措施相关企业税率继承的决定",
-      "status": "pending",
-      "category": "Trade Remedies",
-      "url": "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_19fc278d5b8640f588f940b1d34e163c.html"
-    }
-  ],
+  "entries": [],
   "rejected_non_reg_details": [
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
@@ -32,6 +24,10 @@
     }
   ],
   "rejected_dup_details": [
+    {
+      "title": "商务部公告2026年第36号 公布对原产于美国、欧盟、台湾地区和日本的进口共聚聚甲醛反倾销措施相关企业税率继承的决定",
+      "reason": "numberCN already exists: 商务部公告2026年第36号"
+    },
     {
       "title": "商务部公告2026年第35号 公布对原产于印度的进口单模光纤所适用反倾销措施的期终复审裁定",
       "reason": "numberCN already exists: 商务部公告2026年第35号"
