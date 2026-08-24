@@ -1,51 +1,15 @@
 {
-  "last_run": "2026-08-24T13:01:08.871900",
+  "last_run": "2026-08-24T18:49:43.327794",
   "run_result": "no_new",
   "total_existing": 83,
-  "total_found": 19,
-  "rejected_non_regulation": 12,
+  "total_found": 10,
+  "rejected_non_regulation": 3,
   "rejected_duplicates": 7,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
-    {
-      "title": "海关总署公告2026年第124号（关于进口老挝花生植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/21/article_2026082"
-    },
-    {
-      "title": "海关总署公告2026年第123号（关于修改部分规范性文件的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/19/article_2026081"
-    },
-    {
-      "title": "海关总署公告2026年第121号（关于修改海关总署公告2019年第170号、2020年第73号部分条款的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/18/article_2026081"
-    },
-    {
-      "title": "海关总署 农业农村部公告2026年第122号（关于防止芬兰非洲猪瘟传入我国的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/19/article_2026081"
-    },
-    {
-      "title": "海关总署 生态环境部公告2026年第120号（废止《关于对进口废物实施检验有关问题的通知》的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/14/article_2026081"
-    },
-    {
-      "title": "海关总署 生态环境部公告2026年第119号（关于废止海关总署 生态环境部公告2018年第79号的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/14/article_2026081"
-    },
-    {
-      "title": "海关总署公告2026年第117号（关于废止海关总署公告2001年第3号的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/12/article_2026081"
-    },
-    {
-      "title": "海关总署公告2026年第116号（关于进口哈萨克斯坦动物制品检疫和卫生要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/12/article_2026081"
-    },
-    {
-      "title": "海关总署公告2026年第115号（关于修改海关总署公告2023年第182号部分条款的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-08/12/article_2026081"
-    },
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
       "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
