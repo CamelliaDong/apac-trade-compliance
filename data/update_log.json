@@ -1,10 +1,10 @@
 {
-  "last_run": "2026-08-26T19:53:49.149100",
+  "last_run": "2026-08-27T08:40:50.806633",
   "run_result": "no_new",
   "total_existing": 83,
-  "total_found": 10,
+  "total_found": 9,
   "rejected_non_regulation": 3,
-  "rejected_duplicates": 7,
+  "rejected_duplicates": 6,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
@@ -39,10 +39,6 @@
     {
       "title": "商务部公告2026年第34号 公布加强无人机相关两用物项对美国出口管制",
       "reason": "numberCN already exists: 商务部公告2026年第34号"
-    },
-    {
-      "title": "商务部公告2026年第33号 公布对相关进口打印复印办公设备发起对外贸易国家安全立案调查",
-      "reason": "numberCN already exists: 商务部公告2026年第33号"
     },
     {
       "title": "中国人民银行 国家外汇管理局关于跨国公司本外币跨境资金集中运营业务有关事宜的通知",
