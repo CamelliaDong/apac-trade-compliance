@@ -1,22 +1,14 @@
 {
-  "last_run": "2026-09-08T04:02:53.858820",
-  "run_result": "success",
-  "total_existing": 83,
+  "last_run": "2026-09-08T11:00:06.306737",
+  "run_result": "no_new",
+  "total_existing": 84,
   "total_found": 11,
   "rejected_non_regulation": 5,
-  "rejected_duplicates": 5,
-  "new_found": 1,
-  "new_added": 1,
+  "rejected_duplicates": 6,
+  "new_found": 0,
+  "new_added": 0,
   "needs_review": 0,
-  "entries": [
-    {
-      "id": "2026-069",
-      "title": "商务部公告2026年第37号 公布对原产于日本的进口二氯二氢硅反倾销调查的初步裁定",
-      "status": "pending",
-      "category": "Trade Remedies",
-      "url": "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_97e72afd4b7f41dab15603c723ea46a9.html"
-    }
-  ],
+  "entries": [],
   "rejected_non_reg_details": [
     {
       "title": "图表：2026年前7个月我国服务进出口总额同比增长8.3%",
@@ -40,6 +32,10 @@
     }
   ],
   "rejected_dup_details": [
+    {
+      "title": "商务部公告2026年第37号 公布对原产于日本的进口二氯二氢硅反倾销调查的初步裁定",
+      "reason": "numberCN already exists: 商务部公告2026年第37号"
+    },
     {
       "title": "商务部公告2026年第36号 公布对原产于美国、欧盟、台湾地区和日本的进口共聚聚甲醛反倾销措施相关企业税率继承的决定",
       "reason": "numberCN already exists: 商务部公告2026年第36号"
