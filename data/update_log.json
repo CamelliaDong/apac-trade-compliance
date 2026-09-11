@@ -1,22 +1,14 @@
 {
-  "last_run": "2026-09-11T04:05:30.961783",
-  "run_result": "success",
-  "total_existing": 84,
+  "last_run": "2026-09-11T11:00:23.402715",
+  "run_result": "no_new",
+  "total_existing": 85,
   "total_found": 9,
   "rejected_non_regulation": 3,
-  "rejected_duplicates": 5,
-  "new_found": 1,
-  "new_added": 1,
+  "rejected_duplicates": 6,
+  "new_found": 0,
+  "new_added": 0,
   "needs_review": 0,
-  "entries": [
-    {
-      "id": "2026-070",
-      "title": "商务部公告2026年第38号 公布延长对原产于墨西哥和美国的进口碧根果反倾销调查期限决定",
-      "status": "pending",
-      "category": "Trade Remedies",
-      "url": "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_f00d5792708b4a198bb31aca87a57936.html"
-    }
-  ],
+  "entries": [],
   "rejected_non_reg_details": [
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
@@ -32,6 +24,10 @@
     }
   ],
   "rejected_dup_details": [
+    {
+      "title": "商务部公告2026年第38号 公布延长对原产于墨西哥和美国的进口碧根果反倾销调查期限决定",
+      "reason": "numberCN already exists: 商务部公告2026年第38号"
+    },
     {
       "title": "商务部公告2026年第37号 公布对原产于日本的进口二氯二氢硅反倾销调查的初步裁定",
       "reason": "numberCN already exists: 商务部公告2026年第37号"
