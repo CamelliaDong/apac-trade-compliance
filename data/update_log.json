@@ -1,10 +1,10 @@
 {
-  "last_run": "2026-09-14T21:42:41.996279",
+  "last_run": "2026-09-15T04:25:01.473298",
   "run_result": "no_new",
   "total_existing": 85,
-  "total_found": 9,
+  "total_found": 8,
   "rejected_non_regulation": 3,
-  "rejected_duplicates": 6,
+  "rejected_duplicates": 5,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
@@ -35,10 +35,6 @@
     {
       "title": "商务部公告2026年第36号 公布对原产于美国、欧盟、台湾地区和日本的进口共聚聚甲醛反倾销措施相关企业税率继承的决定",
       "reason": "numberCN already exists: 商务部公告2026年第36号"
-    },
-    {
-      "title": "商务部公告2026年第35号 公布对原产于印度的进口单模光纤所适用反倾销措施的期终复审裁定",
-      "reason": "numberCN already exists: 商务部公告2026年第35号"
     },
     {
       "title": "中国人民银行 国家外汇管理局关于跨国公司本外币跨境资金集中运营业务有关事宜的通知",
