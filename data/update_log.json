@@ -1,14 +1,22 @@
 {
-  "last_run": "2026-09-28T23:07:27.526073",
-  "run_result": "no_new",
+  "last_run": "2026-09-29T05:15:52.699021",
+  "run_result": "success",
   "total_existing": 85,
-  "total_found": 7,
+  "total_found": 8,
   "rejected_non_regulation": 3,
   "rejected_duplicates": 4,
-  "new_found": 0,
-  "new_added": 0,
+  "new_found": 1,
+  "new_added": 1,
   "needs_review": 0,
-  "entries": [],
+  "entries": [
+    {
+      "id": "2026-071",
+      "title": "外汇领域行刑反向衔接工作指引",
+      "status": "pending",
+      "category": "Customs Supervision",
+      "url": "https://www.safe.gov.cn/safe/2026/0929/27935.html"
+    }
+  ],
   "rejected_non_reg_details": [
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
