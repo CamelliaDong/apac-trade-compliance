@@ -1,43 +1,15 @@
 {
-  "last_run": "2026-09-29T22:05:55.538625",
+  "last_run": "2026-09-30T05:03:47.303329",
   "run_result": "no_new",
   "total_existing": 86,
-  "total_found": 15,
-  "rejected_non_regulation": 10,
+  "total_found": 8,
+  "rejected_non_regulation": 3,
   "rejected_duplicates": 5,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
-    {
-      "title": "海关总署公告2026年第144号（关于进口再生纸浆增加微生物关键指标检验要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/29/article_2026092"
-    },
-    {
-      "title": "海关总署公告2026年第143号（关于进口塔吉克斯坦鲜食核果植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/29/article_2026092"
-    },
-    {
-      "title": "海关总署公告2026年第142号（关于进口土耳其月桂叶植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/29/article_2026092"
-    },
-    {
-      "title": "海关总署公告2026年第141号（关于发布《进口再生纸浆检验规程》等7项行业标准的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/28/article_2026092"
-    },
-    {
-      "title": "海关总署 生态环境部 商务部公告2026年第139号（关于废止《海关总署、环境保护部、商务部、质检总局关于出口加工区边角料、废品、...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    },
-    {
-      "title": "海关总署公告2026年第138号（关于实施中国—柬埔寨海关“经认证的经营者”（AEO）互认的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/14/article_2026091"
-    },
-    {
-      "title": "海关总署 农业农村部公告2026年第137号（关于防止尼日尔口蹄疫、牛传染性胸膜肺炎、小反刍兽疫、绵羊痘和山羊痘传入我国的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/11/article_2026091"
-    },
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
       "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
