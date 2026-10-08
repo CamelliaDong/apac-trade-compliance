@@ -1,14 +1,22 @@
 {
-  "last_run": "2026-10-07T22:57:56.576560",
-  "run_result": "no_new",
+  "last_run": "2026-10-08T05:33:03.142770",
+  "run_result": "success",
   "total_existing": 86,
-  "total_found": 8,
+  "total_found": 9,
   "rejected_non_regulation": 3,
   "rejected_duplicates": 5,
-  "new_found": 0,
-  "new_added": 0,
+  "new_found": 1,
+  "new_added": 1,
   "needs_review": 0,
-  "entries": [],
+  "entries": [
+    {
+      "id": "2026-072",
+      "title": "商务部公告2026年第44号 公布对原产于欧盟的进口对硝基甲苯发起反倾销立案调查",
+      "status": "pending",
+      "category": "Trade Remedies",
+      "url": "https://www.mofcom.gov.cn/zcfb/zc/art/2026/art_95aef56261d24c058148334a53d13701.html"
+    }
+  ],
   "rejected_non_reg_details": [
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
