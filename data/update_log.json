@@ -1,47 +1,15 @@
 {
-  "last_run": "2026-10-20T04:22:14.857542",
+  "last_run": "2026-10-20T11:16:15.451551",
   "run_result": "no_new",
   "total_existing": 88,
-  "total_found": 15,
-  "rejected_non_regulation": 11,
+  "total_found": 7,
+  "rejected_non_regulation": 3,
   "rejected_duplicates": 4,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
-    {
-      "title": "商务部 海关总署公告2026年第52号 公布进一步优化两用物项出口管制质疑和鉴别工作有关事项",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "商务部 海关总署公告2026年第51号 公布优化调整挖泥船相关物项出口管制措施的决定",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "商务部 海关总署公告2026年第50号 公布对盾构机等物项实施出口管制的决定",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "商务部 海关总署 中央军委装备发展部公告2026年第49号 公布优化调整无人机相关物项出口管制措施的决定",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "海关总署公告2026年第145号（关于进口乌兹别克斯坦鲜食西瓜植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/12/article_2026101"
-    },
-    {
-      "title": "海关总署公告2026年第144号（关于进口再生纸浆增加微生物关键指标检验要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/29/article_2026092"
-    },
-    {
-      "title": "海关总署公告2026年第143号（关于进口塔吉克斯坦鲜食核果植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/29/article_2026092"
-    },
-    {
-      "title": "海关总署公告2026年第142号（关于进口土耳其月桂叶植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-09/29/article_2026092"
-    },
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
       "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
