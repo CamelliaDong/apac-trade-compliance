@@ -1,43 +1,15 @@
 {
-  "last_run": "2026-10-28T22:25:27.706656",
+  "last_run": "2026-10-29T05:17:24.028087",
   "run_result": "no_new",
   "total_existing": 88,
-  "total_found": 13,
-  "rejected_non_regulation": 10,
+  "total_found": 6,
+  "rejected_non_regulation": 3,
   "rejected_duplicates": 3,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
-    {
-      "title": "海关总署 农业农村部公告2026年第151号（关于防止苏里南高致病性禽流感传入我国的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/28/article_2026102"
-    },
-    {
-      "title": "海关总署公告2026年第149号（关于进口吉尔吉斯共和国鲜食浆果植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/21/article_2026102"
-    },
-    {
-      "title": "商务部 海关总署公告2026年第52号 公布进一步优化两用物项出口管制质疑和鉴别工作有关事项",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "商务部 海关总署公告2026年第51号 公布优化调整挖泥船相关物项出口管制措施的决定",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "商务部 海关总署公告2026年第50号 公布对盾构机等物项实施出口管制的决定",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "商务部 海关总署 中央军委装备发展部公告2026年第49号 公布优化调整无人机相关物项出口管制措施的决定",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "海关总署 农业农村部公告2026年第148号（关于防止纳米比亚口蹄疫传入我国的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/20/article_2026102"
-    },
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
       "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
