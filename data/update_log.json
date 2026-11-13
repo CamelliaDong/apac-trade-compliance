@@ -1,47 +1,15 @@
 {
-  "last_run": "2026-11-12T23:25:19.170602",
+  "last_run": "2026-11-13T06:02:11.090037",
   "run_result": "no_new",
   "total_existing": 92,
-  "total_found": 18,
-  "rejected_non_regulation": 11,
+  "total_found": 10,
+  "rejected_non_regulation": 3,
   "rejected_duplicates": 7,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
-    {
-      "title": "海关总署公告2026年第155号（关于公布《中华人民共和国海关〈中华人民共和国政府与秘鲁共和国政府自由贸易协定〉项下经修订的进出...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    },
-    {
-      "title": "海关总署公告2026年第154号（关于进口智利鲜食水果植物检疫补充要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/30/article_2026103"
-    },
-    {
-      "title": "海关总署 农业农村部公告2026年第153号（关于防止冈比亚新城疫、口蹄疫传入我国的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/29/article_2026102"
-    },
-    {
-      "title": "海关总署 农业农村部公告2026年第151号（关于防止苏里南高致病性禽流感传入我国的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/28/article_2026102"
-    },
-    {
-      "title": "海关总署公告2026年第149号（关于进口吉尔吉斯共和国鲜食浆果植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/21/article_2026102"
-    },
-    {
-      "title": "商务部 海关总署公告2026年第52号 公布进一步优化两用物项出口管制质疑和鉴别工作有关事项",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "商务部 海关总署公告2026年第51号 公布优化调整挖泥船相关物项出口管制措施的决定",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
-    {
-      "title": "商务部 海关总署公告2026年第50号 公布对盾构机等物项实施出口管制的决定",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-10/19/article_2026101"
-    },
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
       "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
