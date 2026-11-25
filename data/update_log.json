@@ -1,39 +1,15 @@
 {
-  "last_run": "2026-11-24T22:11:40.346863",
+  "last_run": "2026-11-25T07:56:30.076955",
   "run_result": "no_new",
   "total_existing": 93,
-  "total_found": 17,
-  "rejected_non_regulation": 9,
+  "total_found": 11,
+  "rejected_non_regulation": 3,
   "rejected_duplicates": 8,
   "new_found": 0,
   "new_added": 0,
   "needs_review": 0,
   "entries": [],
   "rejected_non_reg_details": [
-    {
-      "title": "海关总署公告2026年第162号（关于进一步规范进出口化妆品安全监管要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-11/24/article_2026112"
-    },
-    {
-      "title": "海关总署公告2026年第160号（关于进口尼加拉瓜烟叶植物检疫要求的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-11/23/article_2026112"
-    },
-    {
-      "title": "海关总署公告2026年第158号（关于发布《韦塞尔斯布朗病检疫技术规范》等111项行业标准的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-11/17/article_2026111"
-    },
-    {
-      "title": "海关总署公告2026年第156号（关于防止埃博拉病毒病疫情传入我国的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-11/13/article_2026111"
-    },
-    {
-      "title": "海关总署 农业农村部公告2026年第157号（关于防止巴西圣卡塔琳娜州新城疫传入我国的公告）",
-      "reason": "press release URL: http://www.customs.gov.cn/customs/2026-11/17/article_2026111"
-    },
-    {
-      "title": "海关总署公告2026年第155号（关于公布《中华人民共和国海关〈中华人民共和国政府与秘鲁共和国政府自由贸易协定〉项下经修订的进出...",
-      "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
-    },
     {
       "title": "中国人民银行 国家发展改革委 金融监管总局 中国证监会 国家外汇局 上海市人民政...",
       "reason": "Title is truncated (likely statistics or summary data, not a regulation)"
